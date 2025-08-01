@@ -284,8 +284,10 @@ export const notionCustomStyles = css`
   .notion-quote,
   .notion-callout,
   .category,
-  .category * {
-    font-family: "Noto Serif KR", "PingFang SC", "Microsoft YaHei", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif !important;
+  .category *,
+  .notion-text,
+  .notion-page-content {
+    font-family: var(--font-serif, "Noto Serif KR", "PingFang SC", "Microsoft YaHei", serif) !important;
   }
 
   /* 전역 텍스트 크기 조정 방지 */

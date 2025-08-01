@@ -24,10 +24,6 @@ class MyDocument extends Document {
             title={`${CONFIG.blog.title} Atom Feed`}
             href="/feed.xml"
           />
-          <link 
-            href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&display=swap" 
-            rel="stylesheet" 
-          />
           {/* google search console */}
           {CONFIG.googleSearchConsole.enable === true && (
             <>
