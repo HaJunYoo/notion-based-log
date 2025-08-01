@@ -120,14 +120,19 @@ const StyledWrapper = styled.div`
       min-width: 250px;
     }
     > div > .item {
-      padding: 0.25rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
+      padding: 0.25rem 0.5rem;
       border-radius: 0.75rem;
       font-size: 0.875rem;
       line-height: 1.25rem;
       white-space: nowrap;
       cursor: pointer;
+
+      @media (max-width: 768px) {
+        padding: 0.1875rem 0.5rem;
+        border-radius: 0.5rem;
+        font-size: 0.8125rem;
+        line-height: 1.125rem;
+      }
 
       :hover {
         background-color: ${({ theme }) => theme.colors.gray4};
@@ -137,12 +142,24 @@ const StyledWrapper = styled.div`
         font-weight: 600;
         font-size: 0.8rem;
         margin-bottom: 0.125rem;
+
+        @media (max-width: 768px) {
+          font-weight: 500;
+          font-size: 0.75rem;
+          margin-bottom: 0.0625rem;
+          padding: 0.1875rem 0.5rem;
+        }
       }
       
       &.minor-category {
         font-size: 0.8rem;
         color: ${({ theme }) => theme.colors.gray11};
         margin-left: 0.5rem;
+
+        @media (max-width: 768px) {
+          font-size: 0.6875rem;
+          padding: 0.125rem 0.5rem;
+        }
       }
     }
   }
