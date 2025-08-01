@@ -93,7 +93,7 @@ const RootLayout = ({ children }: Props) => {
   return (
     <ThemeProvider scheme={scheme}>
       <Scripts />
-      <div style={{ fontFamily: '"Noto Serif KR", "PingFang SC", "Microsoft YaHei", sans-serif' }}>
+      <div style={{ fontFamily: 'var(--font-serif)' }}>
         {/* // TODO: replace react query */}
         {/* {metaConfig.type !== "Paper" && <Header />} */}
         <Header fullWidth={false} />
