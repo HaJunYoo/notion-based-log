@@ -64,7 +64,7 @@ const CategoryList: React.FC<Props> = () => {
           onClick={() => handleClickCategory(DEFAULT_CATEGORY)}
           className="all-category"
         >
-          📂 All <span style={{ color: 'var(--colors-gray9)' }}>({posts?.length || 0})</span>
+          All <span style={{ color: 'var(--colors-gray9)', marginLeft: '6px' }}>({posts?.length || 0})</span>
         </a>
 
         {/* 계층 구조로 카테고리 표시 */}
@@ -80,17 +80,18 @@ const CategoryList: React.FC<Props> = () => {
                 onClick={() => handleClickCategory(major)}
                 className="major-category"
               >
-                {hasMinorCategories ? (
+                <span className="category-content">
+                  {major} <span style={{ color: 'var(--colors-gray9)', marginLeft: '6px' }}>({data.count})</span>
+                </span>
+                {hasMinorCategories && (
                   <span
                     className={`toggle-icon ${!isExpanded ? 'collapsed' : ''}`}
                     onClick={(e) => toggleCategory(major, e)}
                     title={isExpanded ? '접기' : '펼쳐서 하위 카테고리 보기'}
                   >
-                    {isExpanded ? '📂' : '📁'}
+                    {isExpanded ? '−' : '+'}
                   </span>
-                ) : (
-                  '📁'
-                )} {major} <span style={{ color: 'var(--colors-gray9)', marginLeft: '3px' }}>({data.count})</span>
+                )}
               </a>
 
               {/* 소분류들 - 토글 상태에 따라 표시 */}
@@ -101,7 +102,7 @@ const CategoryList: React.FC<Props> = () => {
                   onClick={() => handleClickCategory(`${major}/${minor}`)}
                   className="minor-category"
                 >
-                  {minor} <span style={{ color: 'var(--colors-gray10)' }}>({count})</span>
+                  {minor} <span style={{ color: 'var(--colors-gray11)', marginLeft: '6px' }}>({count})</span>
                 </a>
               ))}
             </div>
@@ -129,18 +130,24 @@ const StyledWrapper = styled.div`
 
   .top {
     display: none;
-    padding: 0.25rem;
+    padding: 0.5rem;
     margin-bottom: 0.75rem;
+    color: ${({ theme }) => theme.colors.gray12};
+    font-size: 0.9375rem;
+    line-height: 1.375rem;
+    font-weight: 400;
 
     @media (min-width: 1024px) {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
     }
   }
 
   .list {
     display: flex;
     margin-bottom: 1.5rem;
-    gap: 0.25rem;
+    gap: 0.375rem;
     overflow: scroll;
 
     scrollbar-width: none;
@@ -152,12 +159,12 @@ const StyledWrapper = styled.div`
 
     @media (min-width: 1024px) {
       display: block;
+      gap: 0;
     }
 
     .category-group {
       @media (min-width: 1024px) {
-        margin-bottom: 0.75rem;
-        padding-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
 
         &:last-child {
           margin-bottom: 0;
@@ -166,119 +173,121 @@ const StyledWrapper = styled.div`
     }
 
     a {
-      display: block;
-      padding: 0.25rem;
-      padding-left: 1rem;
-      padding-right: 1rem;
-      margin-top: 0.25rem;
-      margin-bottom: 0.25rem;
-      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      padding: 0.5rem 0.75rem;
+      margin: 0.125rem 0;
+      border-radius: 0.375rem;
       font-size: 0.875rem;
       line-height: 1.25rem;
-      color: ${({ theme }) => theme.colors.gray10};
+      color: ${({ theme }) => theme.colors.gray11};
       flex-shrink: 0;
       cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
 
       :hover {
-        background-color: ${({ theme }) => theme.colors.gray4};
+        background-color: ${({ theme }) => theme.colors.gray2};
+        color: ${({ theme }) => theme.colors.gray12};
       }
+
       &[data-active="true"] {
         color: ${({ theme }) => theme.colors.gray12};
-        background-color: ${({ theme }) => theme.colors.gray4};
-
-        :hover {
-          background-color: ${({ theme }) => theme.colors.gray4};
-        }
+        background-color: ${({ theme }) => theme.colors.gray3};
+        border-color: ${({ theme }) => theme.colors.gray6};
+        font-weight: 400;
       }
 
       &.all-category {
-        font-weight: 600;
+        font-weight: 400;
         margin-bottom: 0.5rem;
+        padding: 0.625rem 0.625rem;
 
         @media (min-width: 1024px) {
-          border-bottom: 1px solid ${({ theme }) => theme.colors.gray5};
+          border-bottom: 1px solid ${({ theme }) => theme.colors.gray4};
+          margin-bottom: 0.75rem;
           padding-bottom: 0.5rem;
         }
       }
 
       &.major-category {
-        font-weight: 600;
-        font-size: 0.825rem;
-        display: flex;
-        align-items: center;
-        border-left: 3px solid transparent;
-        padding-left: 1rem;
-        padding-right: 1rem;
-
-        &:hover {
-          background-color: ${({ theme }) => theme.colors.blue2};
-        }
+        font-weight: 400;
+        font-size: 0.8125rem;
+        padding: 0.4375rem 0.625rem;
+        padding-right: 2.25rem;
+        margin: 0.1875rem 0;
+        justify-content: space-between;
+        position: relative;
 
         @media (min-width: 1024px) {
           margin-top: 0.5rem;
-          margin-bottom: 0.25rem;
+          margin-bottom: 0.125rem;
+        }
+
+        .category-content {
+          flex: 1;
         }
 
         .toggle-icon {
-          margin-right: 0.5rem;
+          position: absolute;
+          right: 0.625rem;
+          top: 50%;
+          transform: translateY(-50%);
           cursor: pointer;
+          font-size: 0.75rem;
+          font-weight: 600;
+          color: ${({ theme }) => theme.colors.gray9};
+          transition: all 0.15s ease;
+          width: 12px;
           display: inline-flex;
+          justify-content: center;
           align-items: center;
-          position: relative;
 
           :hover {
-            opacity: 0.7;
-            transform: scale(1.1);
-          }
-
-          &.collapsed:after {
-            content: "";
-            position: absolute;
-            right: -2px;
-            top: -2px;
-            width: 4px;
-            height: 4px;
-            background: ${({ theme }) => theme.colors.blue9};
-            border-radius: 50%;
-            opacity: 0.7;
+            color: ${({ theme }) => theme.colors.gray11};
           }
         }
       }
 
       &.minor-category {
-        font-size: 0.775rem;
-        color: ${({ theme }) => theme.colors.gray11};
-        position: relative;
-        border-left: 2px solid transparent;
+        font-size: 0.8125rem;
+        color: ${({ theme }) => theme.colors.gray10};
+        padding: 0.25rem 0.625rem;
+        margin: 0.03125rem 0;
 
-        &:hover {
-          background-color: ${({ theme }) => theme.colors.blue2};
+        :hover {
+          background-color: ${({ theme }) => theme.colors.gray2};
+          color: ${({ theme }) => theme.colors.gray12};
         }
 
         @media (min-width: 1024px) {
-          margin-left: 1.5rem;
-          padding-left: 2rem;
-          margin-top: 0.125rem;
-          margin-bottom: 0.125rem;
+          margin-left: 0;
+          padding-left: 1.75rem;
+          position: relative;
         }
 
         &::before {
           content: "•";
           margin-right: 0.5rem;
-          color: ${({ theme }) => theme.colors.gray7};
+          color: ${({ theme }) => theme.colors.gray9};
 
           @media (min-width: 1024px) {
             position: absolute;
-            left: 1.25rem;
+            left: 1.125rem;
             margin-right: 0;
           }
         }
 
         &[data-active="true"] {
           color: ${({ theme }) => theme.colors.gray12};
-          background-color: ${({ theme }) => theme.colors.blue3};
-          border-left-color: ${({ theme }) => theme.colors.blue8};
-          font-weight: 500;
+          background-color: ${({ theme }) => theme.colors.gray3};
+          border-color: ${({ theme }) => theme.colors.gray6};
+          font-weight: 400;
+
+          &::before {
+            color: ${({ theme }) => theme.colors.gray11};
+          }
         }
       }
     }

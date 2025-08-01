@@ -28,7 +28,7 @@ const CategorySelect: React.FC<Props> = () => {
   return (
     <StyledWrapper>
       <div ref={dropdownRef} className="wrapper" onClick={handleToggle}>
-        {currentCategory} Posts <IoChevronDown />
+        {currentCategory === DEFAULT_CATEGORY ? 'All' : currentCategory} Posts <IoChevronDown />
       </div>
       {opened && (
         <div className="content">
@@ -37,7 +37,7 @@ const CategorySelect: React.FC<Props> = () => {
               className="item major-category"
               onClick={() => handleOptionClick(DEFAULT_CATEGORY)}
             >
-              📂 ALL ({posts?.length || 0})
+              ALL ({posts?.length || 0})
             </div>
           </div>
           {Object.entries(majorCategories).map(([major, data]) => (
