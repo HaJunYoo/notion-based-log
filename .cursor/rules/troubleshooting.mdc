@@ -1,0 +1,91 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: Common issues, debugging techniques, and testing guidelines
+globs: "**/*"
+alwaysApply: false
+---
+
+# Troubleshooting & Debugging
+
+## Common Issues & Solutions
+
+### Date Formatting Errors
+- **Issue**: Date-fns usage errors in dependencies
+- **Solution**: Check date-fns version compatibility
+- **Prevention**: Use consistent date formatting utilities
+
+### SEO Warnings
+- **Issue**: MetaConfig implementation problems
+- **Solution**: Verify MetaConfig component usage
+- **Prevention**: Always include required meta tags
+
+### Notion Content Not Updating
+- **Issue**: Content changes not reflected
+- **Solution**: Check revalidation settings in `getStaticProps`
+- **Prevention**: Set appropriate `revalidate` intervals
+
+### Styling Issues
+- **Issue**: Emotion themes not applied correctly
+- **Solution**: Ensure ThemeProvider is wrapping components
+- **Prevention**: Use theme variables consistently
+
+## Development Tips
+
+### Debugging Tools
+- **Use React DevTools for component debugging**
+- **Check Network tab for API calls and caching**
+- **Verify Notion API responses in browser console**
+- **Test responsive design across different screen sizes**
+
+### Performance Monitoring
+- **Monitor bundle size with `yarn build`**
+- **Check Core Web Vitals in browser dev tools**
+- **Use React Query DevTools for data fetching debugging**
+- **Monitor image optimization and loading**
+
+### Error Handling Requirements
+- **Implement proper error boundaries**
+- **Handle Notion API errors gracefully**
+- **Provide fallback UI for failed content loads**
+- **Log errors appropriately for debugging**
+
+## Testing Checklist
+- [ ] Run `yarn lint` to check code quality
+- [ ] Test responsive design on mobile/tablet/desktop
+- [ ] Verify TypeScript compilation
+- [ ] Check for accessibility issues
+- [ ] Test build process with `yarn build`
+- [ ] Verify environment variables are set correctly
+- [ ] Test Notion content synchronization
+
+## Common Commands for Debugging
+```bash
+# Check for TypeScript errors
+yarn tsc --noEmit
+
+# Run ESLint with auto-fix
+yarn lint --fix
+
+# Check bundle size
+yarn build
+
+# Start development server
+yarn dev
+
+# Check for outdated dependencies
+yarn outdated
+```
+
+### DO's and DON'Ts
+- ✅ **DO**: `yarn lint` before committing code
+- ❌ **DON'T**: Skip linting and build checks
+- ✅ **DO**: Test on multiple screen sizes
+- ❌ **DON'T**: Only test on desktop resolution
+- ✅ **DO**: Use React DevTools for debugging
+- ❌ **DON'T**: Rely only on console.log for debugging
+- ✅ **DO**: Set appropriate `revalidate` values
+- ❌ **DON'T**: Use static generation without revalidation for dynamic content

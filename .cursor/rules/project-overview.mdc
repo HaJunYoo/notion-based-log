@@ -1,0 +1,47 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: Project overview and essential information for morethan-log Next.js blog
+globs: "**/*"
+alwaysApply: true
+---
+
+# Project Overview
+
+This is **morethan-log**, a Next.js static blog that uses Notion as a Content Management System (CMS). The blog supports both standard blog posts and full pages (like resumes), with automatic content synchronization from Notion.
+
+## Tech Stack
+- **Next.js 13** with Pages Router (not App Router)
+- **TypeScript** - All new code must be typed
+- **Emotion** - CSS-in-JS styling (use styled components)
+- **React Query** (`@tanstack/react-query`) - Data fetching and caching
+- **Notion API** - Content management via custom notion-client
+
+## File Structure
+```
+src/
+├── pages/           # Next.js pages and API routes
+├── routes/          # Route components (Feed, Detail, etc.)
+├── components/      # Reusable UI components
+├── hooks/           # Custom React hooks
+├── apis/            # API integration (Notion)
+├── libs/utils/      # Utility functions
+├── styles/          # Styling and theme system
+└── types/           # TypeScript type definitions
+```
+
+## Essential Commands
+- `yarn dev` - Start development server on http://localhost:3000
+- `yarn build` - Build for production
+- `yarn start` - Start production server
+- `yarn lint` - Run ESLint (always run after making changes)
+- `yarn postbuild` - Generate sitemap (runs automatically after build)
+
+## Before Making Changes
+1. Always run `yarn dev` to start the development server
+2. Test your changes locally before committing
+3. Run `yarn lint` to ensure code quality
+4. Run `yarn build` to verify production build works

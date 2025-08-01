@@ -1,0 +1,88 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: Environment variables and configuration management guidelines
+globs: "*.config.js, *.env*, site.config.js"
+alwaysApply: false
+---
+
+# Configuration & Environment Setup
+
+## Environment Variables (.env.local)
+```bash
+NOTION_PAGE_ID=your_notion_page_id          # Required
+NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID=           # Optional
+NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=        # Optional
+NEXT_PUBLIC_UTTERANCES_REPO=                 # Optional
+```
+
+## Site Configuration (site.config.js)
+- **Blog title, description, and metadata**
+- **Profile information and social links**
+- **Plugin configurations (Analytics, Comments)**
+- **Revalidation and caching settings**
+
+## Required Environment Variables
+- **`NOTION_PAGE_ID`** - Your Notion page ID for content management
+
+## Optional Environment Variables
+- **`NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID`** - Google Analytics
+- **`NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`** - Google Search Console
+- **`NEXT_PUBLIC_UTTERANCES_REPO`** - Comments system
+
+## Configuration Files
+- **`next.config.js`** - Next.js configuration
+- **`site.config.js`** - Site-specific settings
+- **`next-sitemap.config.js`** - Sitemap generation
+- **`tsconfig.json`** - TypeScript configuration
+- **`.eslintrc.json`** - ESLint rules
+- **`.prettierrc.json`** - Code formatting
+
+## Development Setup Requirements
+1. Clone the repository
+2. Install dependencies: `yarn install`
+3. Create `.env.local` with required variables
+4. Run development server: `yarn dev`
+5. Test build: `yarn build`
+
+## Production Deployment
+- **Build the project: `yarn build`**
+- **Sitemap generation: `yarn postbuild` (automatic)**
+- **Deploy to your hosting platform**
+- **Ensure environment variables are set in production**
+
+## Example site.config.js Structure
+```javascript
+const siteConfig = {
+  title: "Your Blog Title",
+  description: "Your blog description",
+  author: "Your Name",
+  profile: {
+    name: "Your Name",
+    description: "Your bio",
+    image: "/avatar.svg",
+  },
+  social: {
+    github: "https://github.com/yourusername",
+    twitter: "https://twitter.com/yourusername",
+  },
+  plugins: {
+    analytics: {
+      googleAnalytics: {
+        measurementId: process.env.NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID,
+      },
+    },
+  },
+}
+```
+
+### DO's and DON'Ts
+- ✅ **DO**: Store sensitive data in `.env.local`
+- ❌ **DON'T**: Commit `.env.local` to version control
+- ✅ **DO**: Use `NEXT_PUBLIC_` prefix for client-side variables
+- ❌ **DON'T**: Expose server-side secrets to client
+- ✅ **DO**: Set `revalidate` in `getStaticProps` for ISR
+- ❌ **DON'T**: Use static generation without revalidation for dynamic content

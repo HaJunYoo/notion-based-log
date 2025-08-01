@@ -1,0 +1,79 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: Data fetching, Notion integration, and performance optimization patterns
+globs: "src/**/*.{ts,tsx}, pages/**/*.{ts,tsx}"
+alwaysApply: true
+---
+
+# Architecture & Patterns
+
+## Data Fetching Patterns
+- **Use React Query hooks from `src/hooks/`**
+- **Follow existing patterns in `usePostQuery`, `useTagQuery`**
+- **Prefetch data in `getStaticProps` when possible**
+- **Implement proper caching strategies**
+
+## Notion Integration
+- **Content comes from Notion via `src/apis/notion-client/`**
+- **Posts are filtered using `filterPosts` utility**
+- **Images are optimized through custom URL mapping**
+- **Use existing filtering utilities in `src/libs/utils/notion/`**
+
+## Routing & Static Generation
+- **Pages use `getStaticProps` and `getStaticPaths` for SSG**
+- **Dynamic routes: `[slug].tsx` for posts**
+- **Error handling with custom 404 and error pages**
+- **Implement proper static generation with ISR**
+
+## Performance Optimization
+- **Use React.memo for expensive components**
+- **Implement proper dependency arrays in useEffect**
+- **Use Next.js Image component for image optimization**
+- **Leverage static generation with ISR when possible**
+- **Minimize re-renders with proper dependency arrays**
+
+## Error Handling
+- **Implement proper error boundaries**
+- **Handle Notion API errors gracefully**
+- **Provide fallback UI for failed content loads**
+- **Log errors appropriately for debugging**
+
+## Example Data Fetching Pattern
+```typescript
+// In hooks/usePostQuery.ts
+import { useQuery } from "@tanstack/react-query"
+import { getPost } from "src/apis/notion-client"
+
+export const usePostQuery = (slug: string) => {
+  return useQuery({
+    queryKey: ["post", slug],
+    queryFn: () => getPost(slug),
+    enabled: !!slug,
+  })
+}
+
+// In pages/[slug].tsx
+export const getStaticProps: GetStaticProps = async ({ params }) => {
+  const slug = params?.slug as string
+  const post = await getPost(slug)
+
+  return {
+    props: {
+      post,
+    },
+    revalidate: 60, // ISR with 60 second revalidation
+  }
+}
+```
+
+### DO's and DON'Ts
+- ✅ **DO**: `useQuery({ queryKey: ["post", slug], ... })`
+- ❌ **DON'T**: Direct API calls without React Query
+- ✅ **DO**: `getStaticProps` with `revalidate` for ISR
+- ❌ **DON'T**: Client-side only data fetching for static content
+- ✅ **DO**: `React.memo(Component)` for expensive renders
+- ❌ **DON'T**: Unoptimized components causing unnecessary re-renders

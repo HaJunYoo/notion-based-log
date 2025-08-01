@@ -1,0 +1,77 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: SEO optimization and accessibility standards for better user experience
+globs: "src/**/*.{ts,tsx}, pages/**/*.{ts,tsx}"
+alwaysApply: true
+---
+
+# SEO & Accessibility Guidelines
+
+## SEO Best Practices
+- **Use `MetaConfig` component for all pages**
+- **Include canonical URLs, Open Graph, and Twitter meta tags**
+- **Optimize descriptions (150+ characters recommended)**
+- **Add appropriate Open Graph images**
+- **Ensure proper heading hierarchy (H1, H2, H3)**
+
+## Meta Tags Implementation
+- **Update `MetaConfig` component for meta tags**
+- **Ensure canonical URLs are set**
+- **Add appropriate Open Graph images**
+- **Optimize meta descriptions length**
+
+## Accessibility Standards
+- **Include semantic HTML elements**
+- **Add proper alt text for images**
+- **Ensure keyboard navigation works**
+- **Maintain good heading hierarchy (H1, H2, H3)**
+- **Test with screen readers**
+
+## Performance & Core Web Vitals
+- **Optimize images and fonts loading**
+- **Monitor bundle size and Core Web Vitals**
+- **Implement proper static generation with ISR**
+- **Use React Query for data caching**
+
+## Example MetaConfig Usage
+```typescript
+import { MetaConfig } from "src/components/MetaConfig"
+
+const PostPage = ({ post }: { post: TPost }) => {
+  return (
+    <>
+      <MetaConfig
+        title={post.title}
+        description={post.description}
+        canonical={`https://yoursite.com/${post.slug}`}
+        openGraph={{
+          title: post.title,
+          description: post.description,
+          images: [post.coverImage],
+        }}
+      />
+      {/* Page content */}
+    </>
+  )
+}
+```
+
+## Testing & Validation Requirements
+- Test responsive design across different screen sizes
+- Verify accessibility with automated tools
+- Check SEO meta tags implementation
+- Validate HTML structure
+
+### DO's and DON'Ts
+- ✅ **DO**: `<MetaConfig title={post.title} description={post.description} />`
+- ❌ **DON'T**: Missing meta tags on pages
+- ✅ **DO**: `<img alt="Descriptive alt text" src="..." />`
+- ❌ **DON'T**: `<img src="..." />` without alt text
+- ✅ **DO**: `<h1>` → `<h2>` → `<h3>` hierarchy
+- ❌ **DON'T**: Skipping heading levels like `<h1>` → `<h3>`
+- ✅ **DO**: Descriptions 150+ characters for better SEO
+- ❌ **DON'T**: Short, uninformative meta descriptions

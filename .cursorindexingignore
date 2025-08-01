@@ -1,0 +1,98 @@
+# Large media files that don't need indexing
+public/images/
+public/assets/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico
+*.webp
+*.mp4
+*.mov
+*.avi
+*.mp3
+*.wav
+
+# Font files
+*.woff
+*.woff2
+*.ttf
+*.otf
+*.eot
+
+# Large data files
+*.csv
+*.json
+*.xml
+*.yaml
+*.yml
+data/
+datasets/
+
+# Documentation that's not code-related
+docs/
+*.md
+README.md
+CHANGELOG.md
+LICENSE
+
+# Dependencies
+node_modules/
+yarn.lock
+package-lock.json
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Cache directories
+.cache/
+.parcel-cache/
+.eslintcache
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Test files (optional - remove if you want AI to help with tests)
+__tests__/
+*.test.js
+*.test.ts
+*.test.jsx
+*.test.tsx
+*.spec.js
+*.spec.ts
+*.spec.jsx
+*.spec.tsx
+
+# Storybook files
+.storybook/
+*.stories.js
+*.stories.ts
+*.stories.jsx
+*.stories.tsx
+
+# Generated files
+*.generated.js
+*.generated.ts
+auto-generated/
+
+# Archive files
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Large binary files
+*.bin
+*.dat
+*.dump
+
+# Temporary build files
+.tmp/
+.temp/
+temp/ 

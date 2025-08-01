@@ -1,0 +1,81 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+---
+description: TypeScript, Emotion styling, and component patterns for consistent code quality
+globs: "src/**/*.{ts,tsx,js,jsx}"
+alwaysApply: true
+---
+
+# Coding Standards & Guidelines
+
+## TypeScript Guidelines
+- **Import types from `src/types/` when available**
+- **Use proper typing for all functions and components**
+- **Leverage existing types like `TPost`, `TPostStatus`, etc.**
+- **Use strict TypeScript configuration**
+
+## Styling Guidelines
+- **Use Emotion styled components: `styled.div`**
+- **Follow existing theme system in `src/styles/`**
+- **Responsive design: Use media queries from `src/styles/media.ts`**
+- **Color system: Use theme colors from `src/styles/colors.ts`**
+- **Mobile-first responsive design with `clamp()` for fluid typography**
+
+## Component Patterns
+- **Use functional components with hooks**
+- **Place components in `src/components/ComponentName/index.tsx`**
+- **Use TypeScript with proper prop typing**
+- **Follow Emotion styling patterns**
+- **Export from index file**
+
+## Import Patterns
+- **Use absolute imports from `src/` when possible**
+- **Import types from `src/types/` when available**
+- **Use named exports for components and utilities**
+
+## File Naming Conventions
+- **Components**: PascalCase (e.g., `PostCard.tsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `usePostQuery.ts`)
+- **Utilities**: camelCase (e.g., `filterPosts.ts`)
+- **Types**: PascalCase with `T` prefix (e.g., `TPost`)
+
+## Code Quality Requirements
+- Follow existing naming conventions
+- Write clear, descriptive commit messages
+- Add comments for complex logic
+- Keep components small and focused
+- Use proper error boundaries
+
+## Example Component Structure
+```typescript
+import styled from "@emotion/styled"
+import { TPost } from "src/types"
+
+interface PostCardProps {
+  post: TPost
+  onClick?: () => void
+}
+
+const StyledCard = styled.div`
+  // Use theme colors and responsive design
+`
+
+export const PostCard: React.FC<PostCardProps> = ({ post, onClick }) => {
+  return (
+    <StyledCard onClick={onClick}>
+      {/* Component content */}
+    </StyledCard>
+  )
+}
+```
+
+### DO's and DON'Ts
+- ✅ **DO**: `import { TPost } from "src/types"`
+- ❌ **DON'T**: `import { TPost } from "../../../types"`
+- ✅ **DO**: `const StyledCard = styled.div\`...\``
+- ❌ **DON'T**: `<div className="card">` without styled components
+- ✅ **DO**: `export const PostCard: React.FC<PostCardProps>`
+- ❌ **DON'T**: `export default function PostCard`

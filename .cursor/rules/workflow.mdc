@@ -1,0 +1,111 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+---
+description: Git workflow, commit conventions, and development process guidelines
+globs: "**/*"
+alwaysApply: false
+---
+
+# Development Workflow & Git Guidelines
+
+## Git Workflow
+
+### Commit Message Format
+**Follow existing patterns:**
+- **`feat:`** for new features
+- **`fix:`** for bug fixes
+- **`style:`** for styling changes
+- **`refactor:`** for code refactoring
+- **`docs:`** for documentation updates
+- **`perf:`** for performance improvements
+
+### Branch Strategy
+- **Use feature branches for new development**
+- **Test locally before pushing**
+- **Run linting and build checks before commits**
+- **Create descriptive branch names**
+
+## Development Workflow
+
+### Before Starting Work
+1. **Ensure you're on the latest main branch**
+2. **Create a new feature branch**
+3. **Run `yarn dev` to start development server**
+4. **Verify the current state works correctly**
+
+### During Development
+1. **Follow TypeScript and styling guidelines**
+2. **Test changes in multiple browsers/devices**
+3. **Run `yarn lint` frequently**
+4. **Commit changes with descriptive messages**
+
+### Before Committing Requirements
+1. **Run `yarn lint` to check code quality**
+2. **Test responsive design**
+3. **Verify TypeScript compilation**
+4. **Test build process with `yarn build`**
+5. **Check for accessibility issues**
+
+### Code Review Checklist
+- [ ] **Code follows project conventions**
+- [ ] **TypeScript types are properly defined**
+- [ ] **Styling uses Emotion and theme system**
+- [ ] **SEO meta tags are implemented**
+- [ ] **Error handling is in place**
+- [ ] **Performance considerations addressed**
+- [ ] **Accessibility standards met**
+
+## Best Practices
+
+### Code Quality
+- **Write self-documenting code**
+- **Add comments for complex logic**
+- **Keep functions and components focused**
+- **Use meaningful variable and function names**
+
+### Performance
+- **Minimize bundle size**
+- **Optimize images and assets**
+- **Use proper caching strategies**
+- **Monitor Core Web Vitals**
+
+### Testing Requirements
+- **Test across different screen sizes**
+- **Verify functionality in multiple browsers**
+- **Check for accessibility issues**
+- **Test error scenarios**
+
+## Example Workflow
+```bash
+# Start new feature
+git checkout main
+git pull origin main
+git checkout -b feat/new-component
+
+# Development
+yarn dev
+# Make changes...
+yarn lint
+yarn build
+
+# Commit and push
+git add .
+git commit -m "feat: add new component with proper styling"
+git push origin feat/new-component
+
+# Create pull request
+# Code review and merge
+```
+
+### DO's and DON'Ts
+- ✅ **DO**: `git commit -m "feat: add new component"`
+- ❌ **DON'T**: `git commit -m "update"`
+- ✅ **DO**: Test locally before pushing
+- ❌ **DON'T**: Push untested code
+- ✅ **DO**: Use descriptive branch names like `feat/post-search`
+- ❌ **DON'T**: Use generic names like `fix` or `update`
+- ✅ **DO**: Run `yarn lint && yarn build` before commits
+- ❌ **DON'T**: Skip quality checks

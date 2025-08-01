@@ -1,0 +1,67 @@
+# Environment files with sensitive data
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# API keys and secrets
+secrets.json
+config/secrets.json
+src/config/secrets.json
+api-keys.json
+credentials.json
+
+# Notion API tokens and sensitive configs
+notion-token.json
+notion-config.json
+src/apis/notion-client/token.json
+
+# Database files with sensitive data
+*.db
+*.sqlite
+*.sqlite3
+
+# Private keys and certificates
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# User-specific files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
+
+# Build artifacts that might contain sensitive data
+.next/
+out/
+dist/
+build/
+
+# Log files that might contain sensitive information
+*.log
+logs/
+*.log.*
+
+# Backup files
+*.bak
+*.backup
+*_backup.*
+
+# Local development files
+.local/
+local/ 
