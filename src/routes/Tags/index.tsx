@@ -141,8 +141,8 @@ const StyledWrapper = styled.div`
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     
     @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 0.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.375rem;
     }
   }
 
@@ -159,9 +159,9 @@ const StyledWrapper = styled.div`
     min-height: 40px;
     
     @media (max-width: 768px) {
-      padding: 0.25rem;
-      min-height: 35px;
-      border-radius: 6px;
+      padding: 0.1875rem;
+      min-height: 28px;
+      border-radius: 4px;
     }
 
     &:hover {
@@ -173,26 +173,35 @@ const StyledWrapper = styled.div`
     
     .tag-content {
       text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      
+      @media (max-width: 768px) {
+        gap: 0.25rem;
+      }
       
       .tag-name {
         display: block;
         font-size: 0.875rem;
         font-weight: 600;
         color: ${({ theme }) => theme.colors.gray12};
-        margin-bottom: 0.125rem;
         word-break: break-word;
+        line-height: 1.1;
         
         @media (max-width: 768px) {
-          font-size: 0.75rem;
+          font-size: 0.6875rem;
         }
       }
       
       .tag-count {
         font-size: 0.7rem;
         color: ${({ theme }) => theme.colors.gray10};
+        line-height: 1;
         
         @media (max-width: 768px) {
-          font-size: 0.625rem;
+          font-size: 0.5625rem;
         }
       }
     }

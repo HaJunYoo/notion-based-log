@@ -135,8 +135,8 @@ const StyledWrapper = styled.div`
     transition: all 0.2s ease;
 
     @media (max-width: 768px) {
-      padding: 0.625rem;
-      border-radius: 6px;
+      padding: 0.5rem;
+      border-radius: 4px;
     }
 
     &:hover {
@@ -154,7 +154,7 @@ const StyledWrapper = styled.div`
     margin-bottom: 0.75rem;
 
     @media (max-width: 768px) {
-      margin-bottom: 0.625rem;
+      margin-bottom: 0.5rem;
     };
     
     .category-info {
@@ -169,7 +169,7 @@ const StyledWrapper = styled.div`
         margin: 0;
 
         @media (max-width: 768px) {
-          font-size: 1rem;
+          font-size: 0.9375rem;
         }
       }
       
@@ -178,7 +178,7 @@ const StyledWrapper = styled.div`
         font-size: 0.8rem;
 
         @media (max-width: 768px) {
-          font-size: 0.75rem;
+          font-size: 0.6875rem;
         }
       }
     }
@@ -203,7 +203,7 @@ const StyledWrapper = styled.div`
     font-size: 0.85rem;
 
     @media (max-width: 768px) {
-      font-size: 0.8rem;
+      font-size: 0.75rem;
     }
     
     &:hover {
@@ -220,9 +220,9 @@ const StyledWrapper = styled.div`
     gap: 0.375rem;
 
     @media (max-width: 768px) {
-      margin-top: 0.625rem;
-      padding-top: 0.625rem;
-      gap: 0.25rem;
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      gap: 0.1875rem;
     }
   }
 
@@ -237,8 +237,8 @@ const StyledWrapper = styled.div`
     transition: background-color 0.2s ease;
 
     @media (max-width: 768px) {
-      padding: 0.25rem 0.5rem;
-      border-radius: 4px;
+      padding: 0.1875rem 0.4375rem;
+      border-radius: 3px;
     }
 
     &:hover {
@@ -250,7 +250,7 @@ const StyledWrapper = styled.div`
       font-size: 0.85rem;
 
       @media (max-width: 768px) {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
       }
     }
     
@@ -259,7 +259,7 @@ const StyledWrapper = styled.div`
       font-size: 0.75rem;
 
       @media (max-width: 768px) {
-        font-size: 0.7rem;
+        font-size: 0.625rem;
       }
     }
   }
