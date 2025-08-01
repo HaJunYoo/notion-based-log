@@ -257,10 +257,17 @@ export const notionCustomStyles = css`
   .notion-code,
   .notion-inline-code {
     font-family: 'Fira Mono', 'Menlo', 'Monaco', 'Consolas', monospace !important;
+    font-size: clamp(0.68rem, 1.8vw, 0.8rem) !important;
   }
   .notion-code {
-    font-size: clamp(0.65rem, 1.7vw, 0.78rem) !important;
     line-height: 1.4 !important;
+  }
+  
+  /* 코드블록 내 모든 토큰 요소 폰트 크기 통일 */
+  .notion-code *,
+  .notion-code .token {
+    font-size: clamp(0.68rem, 1.8vw, 0.8rem) !important;
+    font-family: inherit !important;
   }
 
   /* 구분선 */
