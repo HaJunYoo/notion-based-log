@@ -45,17 +45,19 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const dehydratedState = dehydrate(queryClient)
   
-  // Check if the serialized state is too large (>18MB to be safe)
+  // Check if the serialized state is too large (>4MB to be safe)
   const serializedSize = JSON.stringify(dehydratedState).length
-  const maxSize = 18 * 1024 * 1024 // 18MB in bytes
+  const maxSize = 4 * 1024 * 1024 // 4MB in bytes
   
   if (serializedSize > maxSize) {
-    // For very large pages, disable ISR and use server-side rendering
+    // For very large pages, return minimal state to avoid FALLBACK_BODY_TOO_LARGE
+    // The page will fetch data client-side instead
     return {
       props: {
-        dehydratedState,
+        dehydratedState: { queries: [], mutations: [] },
+        isLargePage: true,
       },
-      // Remove revalidate to disable ISR for large pages
+      // Disable ISR for large pages to prevent build issues
     }
   }
 

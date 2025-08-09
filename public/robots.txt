@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.yukis-dev-log.site
+
+# Sitemaps
+Sitemap: https://www.yukis-dev-log.site/sitemap.xml
