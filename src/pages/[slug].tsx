@@ -45,9 +45,9 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const dehydratedState = dehydrate(queryClient)
   
-  // Check if the serialized state is too large (>4MB to be safe)
+  // Check if the serialized state is too large (>8MB to be safe, 10MB is the actual limit)
   const serializedSize = JSON.stringify(dehydratedState).length
-  const maxSize = 4 * 1024 * 1024 // 4MB in bytes
+  const maxSize = 8 * 1024 * 1024 // 8MB in bytes
   
   if (serializedSize > maxSize) {
     // For very large pages, return minimal state to avoid FALLBACK_BODY_TOO_LARGE
@@ -69,8 +69,12 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
 }
 
-const DetailPage: NextPageWithLayout = () => {
-  const post = usePostQuery()
+type DetailPageProps = {
+  isLargePage?: boolean
+}
+
+const DetailPage: NextPageWithLayout = ({ isLargePage }: DetailPageProps) => {
+  const post = usePostQuery(isLargePage)
 
   if (!post) return <CustomError />
 
