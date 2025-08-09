@@ -43,9 +43,25 @@ export const getStaticProps: GetStaticProps = async (context) => {
     recordMap,
   }))
 
+  const dehydratedState = dehydrate(queryClient)
+  
+  // Check if the serialized state is too large (>18MB to be safe)
+  const serializedSize = JSON.stringify(dehydratedState).length
+  const maxSize = 18 * 1024 * 1024 // 18MB in bytes
+  
+  if (serializedSize > maxSize) {
+    // For very large pages, disable ISR and use server-side rendering
+    return {
+      props: {
+        dehydratedState,
+      },
+      // Remove revalidate to disable ISR for large pages
+    }
+  }
+
   return {
     props: {
-      dehydratedState: dehydrate(queryClient),
+      dehydratedState,
     },
     revalidate: CONFIG.revalidateTime,
   }
