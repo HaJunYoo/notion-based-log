@@ -11,13 +11,13 @@ const filter: FilterPostsOptions = {
   acceptType: ["Paper", "Post", "Page"],
 }
 
-const usePostQuery = (isLargePage?: boolean) => {
+const usePostQuery = () => {
   const router = useRouter()
   const { slug } = router.query
 
   const { data } = useQuery<PostDetail>({
     queryKey: queryKey.post(`${slug}`),
-    enabled: isLargePage ? !!slug : false,
+    enabled: !!slug,
     queryFn: async (): Promise<PostDetail> => {
       const posts = await getPosts()
       const detailPosts = filterPosts(posts, filter)

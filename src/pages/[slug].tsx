@@ -23,7 +23,7 @@ export const getStaticPaths = async () => {
 
   return {
     paths: filteredPost.map((row) => `/${row.slug}`),
-    fallback: true,
+    fallback: "blocking",
   }
 }
 
@@ -55,7 +55,6 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return {
       props: {
         dehydratedState: { queries: [], mutations: [] },
-        isLargePage: true,
       },
       // Disable ISR for large pages to prevent build issues
     }
@@ -69,12 +68,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
 }
 
-type DetailPageProps = {
-  isLargePage?: boolean
-}
-
-const DetailPage: NextPageWithLayout = ({ isLargePage }: DetailPageProps) => {
-  const post = usePostQuery(isLargePage)
+const DetailPage: NextPageWithLayout = () => {
+  const post = usePostQuery()
 
   if (!post) return <CustomError />
 
