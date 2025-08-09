@@ -22,13 +22,21 @@ export const getStaticPaths = async () => {
   const filteredPost = filterPosts(posts, filter)
 
   return {
-    paths: filteredPost.map((row) => `/${row.slug}`),
+    paths: filteredPost
+      .filter((row) => row.slug !== "about")
+      .map((row) => `/${row.slug}`),
     fallback: true,
   }
 }
 
 export const getStaticProps: GetStaticProps = async (context) => {
   const slug = context.params?.slug
+
+  if (slug === "about") {
+    return {
+      notFound: true,
+    }
+  }
 
   const posts = await getPosts()
   const feedPosts = filterPosts(posts)
