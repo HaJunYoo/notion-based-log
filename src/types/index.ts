@@ -43,6 +43,11 @@ export type TConfig = {
   notionConfig: {
     pageId: string
   }
+  supabaseConfig: {
+    url: string
+    anonKey: string
+    enable: boolean
+  }
   googleAnalytics: {
     enable: boolean
     config: {

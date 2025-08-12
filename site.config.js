@@ -30,6 +30,13 @@ const CONFIG = {
     pageId: process.env.NOTION_PAGE_ID,
   },
 
+  // supabase configuration (optional)
+  supabaseConfig: {
+    url: process.env.SUPABASE_URL,
+    anonKey: process.env.SUPABASE_ANON_KEY,
+    enable: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY),
+  },
+
   // plugin configuration (optional)
   googleAnalytics: {
     enable: true,
