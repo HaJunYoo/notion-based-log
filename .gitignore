@@ -61,6 +61,25 @@ node_modules/
 *.sw?
 # OS specific
 
-# Task files
+# Task Master files
 tasks.json
-tasks/ 
+tasks/
+.taskmaster/
+.claude/
+.cursor/
+.mcp.json
+
+# Task Master sensitive data
+tm-*.json
+taskmaster-*.json
+*-taskmaster.json
+*.taskmaster.json
+
+# Task Master logs
+taskmaster.log
+tm.log
+task-master.log
+
+# Task Master cache
+.tm-cache/
+.taskmaster-cache/
