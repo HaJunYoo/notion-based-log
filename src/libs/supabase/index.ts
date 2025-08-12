@@ -19,9 +19,21 @@ export function getSupabaseClient() {
       auth: {
         autoRefreshToken: true,
         persistSession: false, // Since this is SSG/SSR, we don't need session persistence
+        detectSessionInUrl: false, // Disable automatic session detection from URL
+        flowType: 'pkce', // Use PKCE flow for better security
       },
       db: {
         schema: 'public' as any,
+      },
+      global: {
+        headers: {
+          'x-client-info': 'notion-based-log@1.0.0',
+        },
+      },
+      realtime: {
+        params: {
+          eventsPerSecond: 2, // Limit realtime events for performance
+        },
       },
     })
   }
