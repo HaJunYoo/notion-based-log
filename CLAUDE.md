@@ -58,3 +58,7 @@ This is **notion-based-log**, a Next.js static blog that uses Notion as a Conten
 - Custom NotionRenderer component handles specific styling
 - Supports Mermaid diagrams, syntax highlighting, and custom blocks
 - Custom image URL mapping for optimized loading
+
+## Task Master AI Instructions
+**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
+@./.taskmaster/CLAUDE.md

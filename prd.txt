@@ -1,0 +1,492 @@
+# Task Master Integration PRD
+## Notion-Based-Log Blog Enhancement
+
+### Project Overview
+Integration of task management functionality into the existing notion-based-log static blog system to provide enhanced productivity features for content creators and blog administrators.
+
+### Current System Analysis
+- **Framework**: Next.js 13 with App Router
+- **CMS**: Notion API integration via `notion-client`, `notion-types`, `notion-utils`
+- **Data Layer**: React Query for caching and state management
+- **Styling**: Emotion CSS-in-JS with theme support (light/dark/system)
+- **Content**: Static generation with ISR (revalidation: 21600 * 7 seconds)
+- **Architecture**: Clean separation between routes, components, hooks, and API layers
+
+### Task Master Requirements
+
+#### Core Functionality
+1. **Task Creation & Management**
+   - Create tasks directly from blog posts or admin interface
+   - Link tasks to specific blog content or categories
+   - Task status tracking (pending, in-progress, completed)
+   - Priority levels (high, medium, low)
+   - Due date assignment
+
+2. **Notion Integration**
+   - Sync tasks with Notion database
+   - Leverage existing `notion-client` infrastructure
+   - Support for task templates and automated creation
+   - Maintain consistency with current content flow
+
+3. **UI Components**
+   - Task dashboard component in admin area
+   - Inline task widgets for content creation
+   - Progress tracking visualizations
+   - Mobile-responsive design following current theme system
+
+#### Technical Implementation
+
+##### Database Schema (Notion)
+```
+Tasks Database:
+- Title (Title)
+- Description (Rich Text)
+- Status (Select: Pending, In Progress, Completed)
+- Priority (Select: High, Medium, Low)
+- Due Date (Date)
+- Related Post (Relation to Blog Posts)
+- Category (Multi-select)
+- Assignee (Person)
+- Created Date (Created Time)
+- Last Modified (Last Edited Time)
+```
+
+##### API Routes
+```
+/api/tasks/
+├── index.ts        # GET: List tasks, POST: Create task
+├── [id].ts         # GET/PUT/DELETE: Individual task operations
+├── sync.ts         # POST: Manual sync with Notion
+└── dashboard.ts    # GET: Dashboard data aggregation
+```
+
+##### New Components Structure
+```
+src/components/
+├── TaskMaster/
+│   ├── TaskDashboard.tsx       # Main dashboard component
+│   ├── TaskList.tsx            # List view component
+│   ├── TaskCard.tsx            # Individual task display
+│   ├── TaskForm.tsx            # Create/edit task form
+│   ├── TaskFilters.tsx         # Filtering and sorting
+│   └── TaskProgress.tsx        # Progress visualization
+```
+
+##### Hook Implementation
+```
+src/hooks/
+├── useTaskQueries.ts           # React Query hooks for tasks
+├── useTaskMutations.ts         # Create, update, delete operations
+└── useTaskDashboard.ts         # Dashboard-specific data logic
+```
+
+#### Integration Points
+
+##### Route Integration
+- New `/tasks` route for task management interface
+- Admin section integration with existing layout
+- Task widgets in post editing interface
+
+##### Configuration Updates
+```javascript
+// site.config.js additions
+taskMaster: {
+  enable: true,
+  notionDatabaseId: process.env.NOTION_TASKS_DATABASE_ID,
+  features: {
+    dashboard: true,
+    inlineWidgets: true,
+    autoSync: true,
+    notifications: false
+  }
+}
+```
+
+##### Environment Variables
+```
+NOTION_TASKS_DATABASE_ID=your_tasks_database_id
+TASK_SYNC_INTERVAL=3600000  # 1 hour in ms
+```
+
+#### User Experience Flow
+
+1. **Content Creator Workflow**
+   - Access task dashboard from main navigation
+   - Create tasks related to blog posts
+   - Track content creation progress
+   - Set deadlines for publishing
+
+2. **Task Management**
+   - Filter tasks by status, priority, category
+   - Bulk operations for task updates
+   - Quick actions (mark complete, change priority)
+   - Search functionality
+
+3. **Dashboard Analytics**
+   - Completion rate metrics
+   - Overdue task alerts
+   - Productivity insights
+   - Content pipeline visualization
+
+#### Performance Considerations
+
+##### Caching Strategy
+- Leverage existing React Query setup
+- Cache task data with 5-minute stale time
+- Background sync every hour
+- Optimistic updates for better UX
+
+##### Data Loading
+- Implement pagination for large task lists
+- Lazy loading for task details
+- Progressive enhancement approach
+- Maintain current ISR patterns
+
+#### Security & Access Control
+
+##### Authentication
+- Utilize existing blog owner authentication
+- Session-based access control
+- API route protection
+- Notion API key security
+
+##### Data Validation
+- Input sanitization for task creation
+- XSS protection on task content
+- Rate limiting on API endpoints
+- CORS configuration for admin routes
+
+#### Deployment Considerations
+
+##### Environment Setup
+- Development: Local Notion workspace
+- Production: Main blog Notion workspace
+- Environment variable management
+- Database migration scripts
+
+##### Build Integration
+- Extend existing `yarn build` process
+- Include task-related static assets
+- Maintain current deployment pipeline
+- No breaking changes to existing functionality
+
+#### Success Metrics
+
+##### Technical KPIs
+- Task CRUD operation response time < 200ms
+- 99.9% uptime for task features
+- Zero impact on existing blog performance
+- Mobile responsiveness score > 95
+
+##### User Experience KPIs
+- Task completion rate improvement
+- Content publishing frequency increase
+- User engagement with task features
+- Reduced content creation bottlenecks
+
+#### Implementation Phases
+
+##### Phase 1: Foundation (Week 1-2)
+- Notion database setup
+- Basic API routes implementation
+- Core hook development
+- Simple task CRUD operations
+
+##### Phase 2: UI Development (Week 3-4)
+- Task dashboard component
+- Form components with validation
+- Integration with existing theme system
+- Mobile responsive design
+
+##### Phase 3: Advanced Features (Week 5-6)
+- Filtering and search functionality
+- Progress tracking and analytics
+- Bulk operations
+- Performance optimization
+
+##### Phase 4: Polish & Launch (Week 7-8)
+- Testing across all devices
+- Performance benchmarking
+- Documentation updates
+- User acceptance testing
+
+#### Maintenance Plan
+
+##### Regular Updates
+- Weekly Notion API compatibility checks
+- Monthly performance reviews
+- Quarterly feature enhancement reviews
+- Annual security audits
+
+##### Support Documentation
+- API documentation for developers
+- User guide for content creators
+- Troubleshooting guide
+- Migration guides for updates
+
+---
+
+## Critical Issues Resolution Plan
+
+### Issue 1: Supabase Integration for Next.js Optimization
+
+#### Current Problem Analysis
+- Current system relies heavily on Notion API for all data operations
+- No caching layer beyond React Query client-side caching
+- Performance bottlenecks due to Notion API rate limits and latency
+- Lack of advanced querying capabilities for complex data operations
+
+#### Supabase Integration Strategy
+
+##### 1. Database Architecture
+```sql
+-- Posts table (replicated from Notion)
+CREATE TABLE posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  notion_id TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  content JSONB,
+  status TEXT CHECK (status IN ('Public', 'Draft', 'Archive')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  published_at TIMESTAMP WITH TIME ZONE,
+  tags TEXT[],
+  category TEXT,
+  thumbnail TEXT,
+  summary TEXT,
+  full_width BOOLEAN DEFAULT false
+);
+
+-- Create indexes for better performance
+CREATE INDEX idx_posts_status ON posts(status);
+CREATE INDEX idx_posts_published_at ON posts(published_at DESC);
+CREATE INDEX idx_posts_slug ON posts(slug);
+CREATE INDEX idx_posts_category ON posts(category);
+CREATE INDEX idx_posts_tags ON posts USING GIN(tags);
+
+-- Tasks table for task master functionality
+CREATE TABLE tasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT,
+  status TEXT CHECK (status IN ('pending', 'in_progress', 'completed')),
+  priority TEXT CHECK (priority IN ('high', 'medium', 'low')),
+  due_date DATE,
+  related_post_id UUID REFERENCES posts(id),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Analytics table for performance tracking
+CREATE TABLE page_views (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_slug TEXT NOT NULL,
+  user_agent TEXT,
+  ip_address INET,
+  country TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+##### 2. Hybrid Data Strategy
+- **Supabase as Primary Database**: Store posts, tasks, analytics
+- **Notion as CMS**: Continue using Notion for content editing
+- **Bi-directional Sync**: Implement webhook-based sync between Notion and Supabase
+- **Fallback Mechanism**: Graceful fallback to Notion if Supabase is unavailable
+
+##### 3. Implementation Architecture
+```typescript
+// New data layer structure
+src/apis/
+├── supabase/
+│   ├── client.ts              # Supabase client configuration
+│   ├── posts.ts               # Post-related queries
+│   ├── tasks.ts               # Task-related queries
+│   └── analytics.ts           # Analytics queries
+├── notion-client/             # Keep existing for sync
+└── hybrid/
+    ├── postService.ts         # Unified post service
+    ├── syncService.ts         # Notion-Supabase sync
+    └── fallbackService.ts     # Fallback logic
+```
+
+##### 4. Performance Optimizations
+- **Edge Functions**: Deploy Supabase Edge Functions for API endpoints
+- **Connection Pooling**: Implement pgBouncer for database connections
+- **Query Optimization**: Use Supabase's built-in query optimization
+- **Real-time Subscriptions**: Use Supabase real-time for live updates
+- **CDN Integration**: Leverage Supabase's global CDN
+
+### Issue 2: Vercel Fallback Error with 100+ Posts
+
+#### Current Problem Analysis
+- `[slug].tsx` uses `fallback: true` with `getStaticPaths`
+- Vercel has limitations on build-time static generation for large datasets
+- Current implementation generates all paths at build time, causing timeouts
+- Network retries in `getPosts.ts` may not be sufficient for build-time constraints
+
+#### Solution Strategy
+
+##### 1. Incremental Static Regeneration (ISR) Optimization
+```typescript
+// Updated [slug].tsx
+export const getStaticPaths = async () => {
+  // Only pre-generate most popular/recent posts at build time
+  const posts = await getRecentPosts(20) // Only get recent 20 posts
+  
+  return {
+    paths: posts.map((post) => `/${post.slug}`),
+    fallback: 'blocking' // Change from true to blocking for better SEO
+  }
+}
+
+// New utility function
+export const getRecentPosts = async (limit: number = 20) => {
+  // Implementation to get only recent posts for build-time generation
+}
+```
+
+##### 2. On-Demand ISR Implementation
+```typescript
+// New API route: /api/revalidate-post.ts
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' })
+  }
+
+  try {
+    const { slug, secret } = req.body
+    
+    // Verify secret token
+    if (secret !== process.env.REVALIDATION_TOKEN) {
+      return res.status(401).json({ message: 'Invalid token' })
+    }
+
+    // Trigger revalidation
+    await res.revalidate(`/${slug}`)
+    return res.json({ revalidated: true })
+  } catch (err) {
+    return res.status(500).send('Error revalidating')
+  }
+}
+```
+
+##### 3. Smart Caching Strategy
+- **Build-time**: Pre-generate only top 20 most viewed posts
+- **Runtime**: Generate other posts on first request with `fallback: 'blocking'`
+- **Background**: Implement background regeneration for popular posts
+- **Webhook**: Set up Notion webhook to trigger specific post revalidation
+
+##### 4. Alternative Architecture Options
+
+###### Option A: Dynamic Pages with Client-Side Caching
+```typescript
+// Convert [slug].tsx to fully dynamic with aggressive caching
+export const getServerSideProps: GetServerSideProps = async ({ params, res }) => {
+  // Set cache headers for CDN caching
+  res.setHeader(
+    'Cache-Control',
+    'public, s-maxage=300, stale-while-revalidate=3600'
+  )
+  
+  // Fetch post data
+  const post = await getPostBySlug(params?.slug as string)
+  
+  return {
+    props: { post },
+    // Optional: return 404 if post not found
+    ...(post ? {} : { notFound: true })
+  }
+}
+```
+
+###### Option B: Hybrid Static + Dynamic Approach
+```typescript
+// Implement route-based splitting
+pages/
+├── posts/
+│   ├── [slug].tsx           # Dynamic pages for all posts
+│   └── popular/
+│       └── [slug].tsx       # Static pages for popular posts
+```
+
+##### 5. Build Optimization Strategies
+
+###### Parallel Build Processing
+```typescript
+// Enhanced getPosts with batch processing
+export const getPosts = async (options: {
+  limit?: number
+  offset?: number
+  parallel?: boolean
+} = {}) => {
+  const { limit = 100, offset = 0, parallel = true } = options
+  
+  if (parallel) {
+    // Split requests into batches to avoid timeout
+    const batchSize = 25
+    const batches = Math.ceil(limit / batchSize)
+    
+    const results = await Promise.all(
+      Array.from({ length: batches }, (_, i) => 
+        getBatch(i * batchSize + offset, batchSize)
+      )
+    )
+    
+    return results.flat()
+  }
+  
+  return getSequentialPosts(limit, offset)
+}
+```
+
+###### Build Time Configuration
+```javascript
+// next.config.js optimizations
+module.exports = {
+  experimental: {
+    // Enable ISR improvements
+    isrMemoryCacheSize: 0, // Disable memory cache in favor of disk cache
+  },
+  
+  // Increase build timeout for Vercel
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  
+  // Configure static page generation
+  generateBuildId: async () => {
+    // Use commit hash for better cache invalidation
+    return process.env.VERCEL_GIT_COMMIT_SHA || 'development'
+  }
+}
+```
+
+#### Migration Timeline
+
+##### Phase 1: Immediate Fixes (Week 1)
+1. Change `fallback: true` to `fallback: 'blocking'`
+2. Implement limited `getStaticPaths` (top 20 posts)
+3. Add on-demand ISR API route
+4. Set up proper error handling and logging
+
+##### Phase 2: Supabase Integration (Week 2-3)
+1. Set up Supabase project and database schema
+2. Implement data sync service between Notion and Supabase
+3. Create hybrid data service with fallback logic
+4. Migrate critical queries to Supabase
+
+##### Phase 3: Full Optimization (Week 4)
+1. Implement advanced caching strategies
+2. Set up monitoring and alerting
+3. Performance testing and optimization
+4. Documentation and deployment
+
+#### Monitoring and Alerting
+- **Build Time Monitoring**: Track build duration and success rates
+- **Performance Metrics**: Monitor page load times and Core Web Vitals  
+- **Error Tracking**: Implement comprehensive error logging
+- **Database Performance**: Monitor Supabase query performance
+
+This comprehensive resolution plan addresses both the performance optimization needs through Supabase integration and the critical fallback error issue affecting large-scale deployment on Vercel.
