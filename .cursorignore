@@ -1,9 +1,9 @@
 # Environment files with sensitive data
-.env
-.env.local
-.env.development
-.env.production
-.env.test
+# .env
+# .env.local
+# .env.development
+# .env.production
+# .env.test
 
 # API keys and secrets
 secrets.json
@@ -64,4 +64,20 @@ logs/
 
 # Local development files
 .local/
-local/ 
+local/
+
+# Node / npm artifacts
+node_modules/
+.yarn/
+.npm/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# Python virtual environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc

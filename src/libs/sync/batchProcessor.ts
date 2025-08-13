@@ -1,4 +1,5 @@
 import { getPosts as getNotionPosts } from 'src/apis/notion-client'
+import { getRecordMap } from 'src/apis/notion-client'
 import { getSupabaseServiceClient } from 'src/libs/supabase'
 import { Post as SupabasePost } from 'src/libs/supabase/types'
 import { TPost } from 'src/types'
@@ -167,7 +168,7 @@ export class BatchProcessor {
 
   private async processBatch(posts: TPost[], progress: BatchProgress): Promise<void> {
     const supabase = getSupabaseServiceClient()
-    const promises: Promise<void>[] = []
+      const promises: Promise<void>[] = []
 
     // Process posts with controlled concurrency
     for (let i = 0; i < posts.length; i += this.config.maxConcurrency) {
@@ -175,7 +176,12 @@ export class BatchProcessor {
 
       const chunkPromises = chunk.map(async (post) => {
         try {
-          const supabasePost = this.mapNotionPostToSupabase(post)
+          // Fetch Notion record map to persist full content
+          let recordMap: any | undefined
+          try {
+            recordMap = await getRecordMap(post.id)
+          } catch {}
+          const supabasePost = this.mapNotionPostToSupabase(post, recordMap)
 
           const { error } = await supabase
             .from('posts')
@@ -234,7 +240,11 @@ export class BatchProcessor {
             }
 
             // Update with resolved post
-            const supabasePost = this.mapNotionPostToSupabase(resolution.mergedPost)
+            let recordMap: any | undefined
+            try {
+              recordMap = await getRecordMap(post.id)
+            } catch {}
+            const supabasePost = this.mapNotionPostToSupabase(resolution.mergedPost, recordMap)
             const { error } = await supabase
               .from('posts')
               .update(supabasePost)
@@ -243,7 +253,11 @@ export class BatchProcessor {
             if (error) throw error
           } else {
             // No conflict, simple update
-            const supabasePost = this.mapNotionPostToSupabase(post)
+            let recordMap: any | undefined
+            try {
+              recordMap = await getRecordMap(post.id)
+            } catch {}
+            const supabasePost = this.mapNotionPostToSupabase(post, recordMap)
             const { error } = await supabase
               .from('posts')
               .update(supabasePost)
@@ -253,7 +267,11 @@ export class BatchProcessor {
           }
         } else {
           // Create new post
-          const supabasePost = this.mapNotionPostToSupabase(post)
+          let recordMap: any | undefined
+          try {
+            recordMap = await getRecordMap(post.id)
+          } catch {}
+          const supabasePost = this.mapNotionPostToSupabase(post, recordMap)
           const { error } = await supabase
             .from('posts')
             .insert(supabasePost)
@@ -285,7 +303,7 @@ export class BatchProcessor {
     }
   }
 
-  private mapNotionPostToSupabase(post: TPost) {
+  private mapNotionPostToSupabase(post: TPost, recordMap?: any) {
     return {
       notion_id: post.id,
       title: post.title,
@@ -298,7 +316,8 @@ export class BatchProcessor {
         category: post.category,
         date: post.date,
         type: post.type,
-        status: post.status
+        status: post.status,
+        record_map: recordMap || undefined,
       },
       status: post.status?.includes('Public') ? 'published' : 'draft',
       published_at: post.status?.includes('Public') ? new Date(post.date.start_date).toISOString() : null,

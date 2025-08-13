@@ -1,11 +1,10 @@
-import { TPost, TPosts, PostDetail } from 'src/types'
+import { getPosts as getNotionPosts, getRecordMap } from 'src/apis/notion-client'
+import { getSupabaseClient } from 'src/libs/supabase'
 import { Post as SupabasePost } from 'src/libs/supabase/types'
-import { ServiceResponse } from './types'
+import { PostDetail, TPost, TPosts } from 'src/types'
 import { BaseHybridService } from './baseService'
 import { CACHE_KEYS } from './config'
-import { getSupabaseClient } from 'src/libs/supabase'
-import { getPosts as getNotionPosts } from 'src/apis/notion-client'
-import { getRecordMap } from 'src/apis/notion-client'
+import { ServiceResponse } from './types'
 
 class PostService extends BaseHybridService {
   async getPosts(): Promise<ServiceResponse<TPosts>> {
@@ -27,7 +26,7 @@ class PostService extends BaseHybridService {
   async getPostDetail(slug: string): Promise<ServiceResponse<PostDetail>> {
     // For post details with record map, we need to combine data from both sources
     const cacheKey = `${CACHE_KEYS.POST(slug)}:detail`
-    
+
     return this.executeWithFallback(
       () => this.getPostDetailFromSupabase(slug),
       () => this.getPostDetailFromNotion(slug),
@@ -56,7 +55,7 @@ class PostService extends BaseHybridService {
 
   private async getPostsFromSupabase(): Promise<ServiceResponse<TPosts>> {
     const supabase = getSupabaseClient()
-    
+
     const { data, error } = await supabase
       .from('posts')
       .select('*')
@@ -68,7 +67,7 @@ class PostService extends BaseHybridService {
     }
 
     const posts = data?.map(post => this.mapSupabasePostToTPost(post as unknown as SupabasePost)) || []
-    
+
     return {
       data: posts,
       source: 'supabase'
@@ -77,7 +76,7 @@ class PostService extends BaseHybridService {
 
   private async getPostsFromNotion(): Promise<ServiceResponse<TPosts>> {
     const posts = await getNotionPosts()
-    
+
     return {
       data: posts,
       source: 'notion'
@@ -86,7 +85,7 @@ class PostService extends BaseHybridService {
 
   private async getPostFromSupabase(id: string): Promise<ServiceResponse<TPost>> {
     const supabase = getSupabaseClient()
-    
+
     const { data, error } = await supabase
       .from('posts')
       .select('*')
@@ -99,7 +98,7 @@ class PostService extends BaseHybridService {
     }
 
     const post = this.mapSupabasePostToTPost(data as unknown as SupabasePost)
-    
+
     return {
       data: post,
       source: 'supabase'
@@ -110,11 +109,11 @@ class PostService extends BaseHybridService {
     // Get posts from Notion and find the specific one
     const posts = await getNotionPosts()
     const post = posts.find(p => p.id === id || p.slug === id)
-    
+
     if (!post) {
       throw new Error(`Post with id ${id} not found in Notion`)
     }
-    
+
     return {
       data: post,
       source: 'notion'
@@ -123,7 +122,7 @@ class PostService extends BaseHybridService {
 
   private async getPostDetailFromSupabase(slug: string): Promise<ServiceResponse<PostDetail>> {
     const supabase = getSupabaseClient()
-    
+
     const { data, error } = await supabase
       .from('posts')
       .select('*')
@@ -152,7 +151,7 @@ class PostService extends BaseHybridService {
       ...post,
       recordMap
     }
-    
+
     return {
       data: postDetail,
       source: 'supabase'
@@ -163,23 +162,23 @@ class PostService extends BaseHybridService {
     // Get posts from Notion and find the specific one
     const posts = await getNotionPosts()
     const post = posts.find(p => p.slug === slug)
-    
+
     if (!post) {
       throw new Error(`Post with slug ${slug} not found in Notion`)
     }
-    
+
     // Get record map for the post
     const recordMap = await getRecordMap(post.id)
-    
+
     if (!recordMap) {
       throw new Error(`Could not fetch record map for post ${slug}`)
     }
-    
+
     const postDetail: PostDetail = {
       ...post,
       recordMap
     }
-    
+
     return {
       data: postDetail,
       source: 'notion'
@@ -193,7 +192,7 @@ class PostService extends BaseHybridService {
       }
 
       const supabase = getSupabaseClient()
-      
+
       // Try a simple query to check connection
       const { error } = await supabase
         .from('posts')
@@ -229,8 +228,8 @@ class PostService extends BaseHybridService {
   private mapSupabasePostToTPost(supabasePost: SupabasePost): TPost {
     return {
       id: supabasePost.notion_id,
-      date: { 
-        start_date: supabasePost.published_at || supabasePost.created_at 
+      date: {
+        start_date: supabasePost.published_at || supabasePost.created_at
       },
       type: ['Post'], // Default type
       slug: supabasePost.slug,
