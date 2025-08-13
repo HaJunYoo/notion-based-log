@@ -125,7 +125,7 @@ export class ConflictResolver {
       summary: conflict.supabasePost.summary || undefined,
       createdTime: conflict.supabasePost.created_at,
       fullWidth: false,
-      thumbnail: conflict.supabasePost.cover_image || undefined
+      thumbnail: conflict.supabasePost.cover_image || null
     }
 
     return {

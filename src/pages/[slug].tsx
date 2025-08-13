@@ -34,14 +34,11 @@ export const getStaticPaths = async () => {
   const posts = await getPosts()
   const filteredPost = filterPosts(posts, filter)
 
-  // Only pre-generate recent posts (top 20) for better build performance
-  const recentPosts = getRecentPosts(filteredPost, 20)
-
   return {
-    paths: recentPosts
+    paths: filteredPost
       .filter((row) => row.slug !== "about")
       .map((row) => `/${row.slug}`),
-    fallback: 'blocking', // Changed from 'true' to 'blocking' for better SEO and UX
+    fallback: 'blocking',
   }
 }
 
@@ -55,13 +52,14 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
 
   const posts = await getPosts()
-  const feedPosts = filterPosts(posts)
+  const feedPosts = filterPosts(posts).map((p: any) => ({ ...p, thumbnail: p.thumbnail ?? null }))
   await queryClient.prefetchQuery(queryKey.posts(), () => feedPosts)
 
   const detailPosts = filterPosts(posts, filter)
   const postDetail = detailPosts.find((t: any) => t.slug === slug)
   const detailResp = await postService.getPostDetail(String(slug))
-  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => detailResp.data)
+  const safeDetail = { ...detailResp.data, thumbnail: detailResp.data.thumbnail ?? null }
+  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => safeDetail)
 
   return {
     props: {

@@ -238,7 +238,7 @@ class PostService extends BaseHybridService {
       status: ['Public'], // Map published status
       createdTime: supabasePost.created_at,
       fullWidth: false, // Default value
-      thumbnail: supabasePost.cover_image || undefined,
+      thumbnail: supabasePost.cover_image || null,
     }
   }
 
