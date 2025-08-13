@@ -4,6 +4,7 @@ import MetaConfig from "src/components/MetaConfig"
 import { getMarkdownContent } from "src/libs/utils/markdown"
 import { NextPageWithLayout } from "../types"
 import styled from "@emotion/styled"
+import { respondMobile } from "src/styles/media"
 
 interface AboutPageProps {
   content: string
@@ -112,6 +113,20 @@ const AboutContainer = styled.div`
       &:hover {
         text-decoration: underline;
       }
+    }
+  }
+  ${respondMobile} {
+    padding: 1.5rem 1rem;
+    max-width: 100%;
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+    h3 { font-size: 1rem; }
+    h4 { font-size: 0.95rem; }
+    h5 { font-size: 0.85rem; }
+    ul { padding-left: 1.25rem; }
+    blockquote {
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
     }
   }
 `
