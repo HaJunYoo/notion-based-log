@@ -118,13 +118,13 @@ const AboutContainer = styled.div`
   ${respondMobile} {
     padding: 1.5rem 1rem;
     max-width: 100%;
-    h1 { font-size: 1.25rem; }
-    h2 { font-size: 1.125rem; }
-    h3 { font-size: 1rem; }
-    h4 { font-size: 0.9rem; }
+    h1 { font-size: 1.125rem; }
+    h2 { font-size: 1rem; }
+    h3 { font-size: 0.95rem; }
+    h4 { font-size: 0.875rem; }
     h5 { font-size: 0.8rem; }
-    p { font-size: 0.95rem; }
-    li { font-size: 0.95rem; }
+    p { font-size: 0.875rem; }
+    li { font-size: 0.875rem; }
     ul { padding-left: 1.25rem; }
     blockquote {
       padding: 0.75rem 1rem;
