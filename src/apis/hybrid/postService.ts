@@ -128,11 +128,12 @@ class PostService extends BaseHybridService {
       .select('*')
       .eq('slug', slug)
       .eq('status', 'published')
-      .single()
+      .order('published_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-    if (error) {
-      throw new Error(`Supabase error: ${error.message}`)
-    }
+    if (error) throw new Error(`Supabase error: ${error.message}`)
+    if (!data) throw new Error('No post found') // fallback to Notion
 
     const supabasePost = data as unknown as SupabasePost
     const post = this.mapSupabasePostToTPost(supabasePost)
