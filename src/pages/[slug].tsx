@@ -1,7 +1,8 @@
 import { dehydrate } from "@tanstack/react-query"
 import { GetStaticProps } from "next"
 import { CONFIG } from "site.config"
-import { getPosts, getRecordMap } from "src/apis"
+import { getPosts } from "src/apis"
+import { postService } from "src/apis/hybrid"
 import MetaConfig from "src/components/MetaConfig"
 import { queryKey } from "src/constants/queryKey"
 import usePostQuery from "src/hooks/usePostQuery"
@@ -59,12 +60,8 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const detailPosts = filterPosts(posts, filter)
   const postDetail = detailPosts.find((t: any) => t.slug === slug)
-  const recordMap = await getRecordMap(postDetail?.id!)
-
-  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => ({
-    ...postDetail,
-    recordMap,
-  }))
+  const detailResp = await postService.getPostDetail(String(slug))
+  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => detailResp.data)
 
   return {
     props: {

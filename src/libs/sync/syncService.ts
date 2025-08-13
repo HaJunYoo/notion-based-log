@@ -1,4 +1,4 @@
-import { getPosts as getNotionPosts } from 'src/apis/notion-client'
+import { getPosts as getNotionPosts, getRecordMap as getNotionRecordMap } from 'src/apis/notion-client'
 import { getSupabaseClient, getSupabaseServiceClient } from 'src/libs/supabase'
 import { Post as SupabasePost } from 'src/libs/supabase/types'
 import { TPost } from 'src/types'
@@ -310,7 +310,12 @@ export class SyncService implements SyncServiceInterface {
   private async createSupabasePost(post: TPost, operation: SyncOperation): Promise<SyncResult> {
     try {
       const supabase = getSupabaseServiceClient()
-      const supabasePost = this.mapNotionPostToSupabase(post)
+      // Fetch full Notion record map to store body content in Supabase
+      let recordMap: any | undefined
+      try {
+        recordMap = await getNotionRecordMap(post.id)
+      } catch {}
+      const supabasePost = this.mapNotionPostToSupabase(post, recordMap)
 
       const { data, error } = await supabase
         .from('posts')
@@ -343,7 +348,12 @@ export class SyncService implements SyncServiceInterface {
   private async updateSupabasePost(post: TPost, operation: SyncOperation): Promise<SyncResult> {
     try {
       const supabase = getSupabaseServiceClient()
-      const supabasePost = this.mapNotionPostToSupabase(post)
+      // Fetch full Notion record map to store body content in Supabase
+      let recordMap: any | undefined
+      try {
+        recordMap = await getNotionRecordMap(post.id)
+      } catch {}
+      const supabasePost = this.mapNotionPostToSupabase(post, recordMap)
 
       const { data, error } = await supabase
         .from('posts')
@@ -393,7 +403,7 @@ export class SyncService implements SyncServiceInterface {
     }
   }
 
-  private mapNotionPostToSupabase(post: TPost): Omit<SupabasePost, 'id' | 'created_at' | 'updated_at'> {
+  private mapNotionPostToSupabase(post: TPost, recordMap?: any): Omit<SupabasePost, 'id' | 'created_at' | 'updated_at'> {
     // Normalize and validate fields from TPost
     const statusArray = Array.isArray(post.status) ? post.status : []
     const isPublic = statusArray.some(s => s.includes('Public'))
@@ -422,6 +432,7 @@ export class SyncService implements SyncServiceInterface {
         status: statusArray,
         createdTime: post.createdTime,
         fullWidth: post.fullWidth,
+        record_map: recordMap || undefined,
       },
       status: isPublic ? 'published' as const : 'draft',
       published_at: publishedAt,
