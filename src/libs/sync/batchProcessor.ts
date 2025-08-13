@@ -1,5 +1,4 @@
-import { getPosts as getNotionPosts } from 'src/apis/notion-client'
-import { getRecordMap } from 'src/apis/notion-client'
+import { getPosts as getNotionPosts, getRecordMap } from 'src/apis/notion-client'
 import { getSupabaseServiceClient } from 'src/libs/supabase'
 import { Post as SupabasePost } from 'src/libs/supabase/types'
 import { TPost } from 'src/types'
@@ -296,7 +295,7 @@ export class BatchProcessor {
     const { error } = await supabase
       .from('posts')
       .delete()
-      .neq('id', '') // Delete all rows
+      .not('id', 'is', null) // Delete all rows by selecting non-null ids
 
     if (error && error.code !== 'PGRST116') { // Ignore "no rows" error
       throw new Error(`Failed to clear existing data: ${error.message}`)
