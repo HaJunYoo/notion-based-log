@@ -1,9 +1,9 @@
-import { TPost, TPosts } from 'src/types'
-import { getSupabaseClient } from 'src/libs/supabase'
 import { getPosts as getNotionPosts } from 'src/apis/notion-client'
-import { SyncBatch, SyncOperation, SyncResult } from './types'
-import { timestampTracker } from './timestampTracker'
+import { getSupabaseServiceClient } from 'src/libs/supabase'
+import { Post as SupabasePost } from 'src/libs/supabase/types'
+import { TPost } from 'src/types'
 import { conflictResolver } from './conflictResolver'
+import { timestampTracker } from './timestampTracker'
 
 export interface BatchProcessorConfig {
   batchSize: number
@@ -45,11 +45,11 @@ export class BatchProcessor {
   async processInitialMigration(): Promise<BatchProgress> {
     const syncId = await timestampTracker.recordSyncStart('full_sync')
     const batchId = `migration_${Date.now()}`
-    
+
     try {
       // Get all posts from Notion
       const notionPosts = await getNotionPosts()
-      
+
       if (notionPosts.length === 0) {
         await timestampTracker.recordSyncComplete(syncId, 0)
         return this.createEmptyProgress(batchId)
@@ -72,7 +72,7 @@ export class BatchProcessor {
 
         try {
           await this.processBatch(batch, progress)
-          
+
           // Delay between batches to avoid overwhelming the API
           if (i < batches.length - 1) {
             await this.delay(this.config.delayBetweenBatches)
@@ -91,9 +91,9 @@ export class BatchProcessor {
 
     } catch (error) {
       await timestampTracker.recordSyncComplete(
-        syncId, 
-        0, 
-        false, 
+        syncId,
+        0,
+        false,
         (error as Error).message
       )
       throw error
@@ -112,7 +112,7 @@ export class BatchProcessor {
 
       // Get modified posts from Notion
       const allNotionPosts = await getNotionPosts()
-      const modifiedPosts = allNotionPosts.filter(post => 
+      const modifiedPosts = allNotionPosts.filter(post =>
         modifiedPostIds.includes(post.id)
       )
 
@@ -131,7 +131,7 @@ export class BatchProcessor {
 
         try {
           await this.processBatchWithConflictDetection(batch, progress)
-          
+
           if (i < batches.length - 1) {
             await this.delay(this.config.delayBetweenBatches / 2) // Shorter delay for incremental
           }
@@ -148,9 +148,9 @@ export class BatchProcessor {
 
     } catch (error) {
       await timestampTracker.recordSyncComplete(
-        syncId, 
-        0, 
-        false, 
+        syncId,
+        0,
+        false,
         (error as Error).message
       )
       throw error
@@ -166,17 +166,17 @@ export class BatchProcessor {
   }
 
   private async processBatch(posts: TPost[], progress: BatchProgress): Promise<void> {
-    const supabase = getSupabaseClient()
+    const supabase = getSupabaseServiceClient()
     const promises: Promise<void>[] = []
 
     // Process posts with controlled concurrency
     for (let i = 0; i < posts.length; i += this.config.maxConcurrency) {
       const chunk = posts.slice(i, i + this.config.maxConcurrency)
-      
+
       const chunkPromises = chunk.map(async (post) => {
         try {
           const supabasePost = this.mapNotionPostToSupabase(post)
-          
+
           const { error } = await supabase
             .from('posts')
             .insert(supabasePost)
@@ -199,10 +199,10 @@ export class BatchProcessor {
   }
 
   private async processBatchWithConflictDetection(
-    posts: TPost[], 
+    posts: TPost[],
     progress: BatchProgress
   ): Promise<void> {
-    const supabase = getSupabaseClient()
+    const supabase = getSupabaseServiceClient()
 
     for (const post of posts) {
       try {
@@ -215,20 +215,20 @@ export class BatchProcessor {
 
         if (existingPost && this.config.enableConflictDetection) {
           // Detect and resolve conflicts
-          const analysis = conflictResolver.analyzeConflict(post, existingPost)
-          
+          const analysis = conflictResolver.analyzeConflict(post, existingPost as unknown as SupabasePost)
+
           if (analysis.hasConflict) {
             const conflict = {
               notionPost: post,
-              supabasePost: existingPost,
+              supabasePost: existingPost as unknown as SupabasePost,
               conflictType: analysis.conflictTypes[0] || 'content' as const,
               resolution: analysis.recommendedResolution
             }
 
             const resolution = conflictResolver.resolveConflict(conflict)
-            
+
             if (resolution.warnings.length > 0) {
-              progress.errors.push(...resolution.warnings.map(w => 
+              progress.errors.push(...resolution.warnings.map(w =>
                 `${post.title}: ${w}`
               ))
             }
@@ -272,8 +272,8 @@ export class BatchProcessor {
   }
 
   private async clearSupabaseData(): Promise<void> {
-    const supabase = getSupabaseClient()
-    
+    const supabase = getSupabaseServiceClient()
+
     // Clear existing posts for clean migration
     const { error } = await supabase
       .from('posts')

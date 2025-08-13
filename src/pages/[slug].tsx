@@ -17,15 +17,30 @@ const filter: FilterPostsOptions = {
   acceptType: ["Paper", "Post", "Page"],
 }
 
+// Function to get recent posts for selective pre-generation
+const getRecentPosts = (posts: any[], limit: number = 20) => {
+  return posts
+    .sort((a, b) => {
+      // Sort by date (newest first)
+      const dateA = new Date(a.date?.start_date || a.createdTime)
+      const dateB = new Date(b.date?.start_date || b.createdTime)
+      return dateB.getTime() - dateA.getTime()
+    })
+    .slice(0, limit)
+}
+
 export const getStaticPaths = async () => {
   const posts = await getPosts()
   const filteredPost = filterPosts(posts, filter)
 
+  // Only pre-generate recent posts (top 20) for better build performance
+  const recentPosts = getRecentPosts(filteredPost, 20)
+
   return {
-    paths: filteredPost
+    paths: recentPosts
       .filter((row) => row.slug !== "about")
       .map((row) => `/${row.slug}`),
-    fallback: true,
+    fallback: 'blocking', // Changed from 'true' to 'blocking' for better SEO and UX
   }
 }
 

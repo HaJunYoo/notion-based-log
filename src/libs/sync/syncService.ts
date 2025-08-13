@@ -1,20 +1,19 @@
-import { TPost, TPosts } from 'src/types'
-import { Post as SupabasePost } from 'src/libs/supabase/types'
-import { getSupabaseClient } from 'src/libs/supabase'
 import { getPosts as getNotionPosts } from 'src/apis/notion-client'
+import { getSupabaseClient, getSupabaseServiceClient } from 'src/libs/supabase'
+import { Post as SupabasePost } from 'src/libs/supabase/types'
+import { TPost } from 'src/types'
+import { DEFAULT_SYNC_CONFIG } from './config'
 import {
-  SyncServiceInterface,
-  SyncBatch,
-  SyncOperation,
-  SyncResult,
-  SyncConflict,
-  SyncStats,
-  SyncConfig,
-  SyncDirection,
-  ConflictResolution,
-  SyncEventHandlers
+    SyncBatch,
+    SyncConfig,
+    SyncConflict,
+    SyncDirection,
+    SyncEventHandlers,
+    SyncOperation,
+    SyncResult,
+    SyncServiceInterface,
+    SyncStats
 } from './types'
-import { DEFAULT_SYNC_CONFIG, SYNC_OPERATION_TIMEOUTS, SYNC_ERRORS } from './config'
 
 export class SyncService implements SyncServiceInterface {
   private config: SyncConfig = { ...DEFAULT_SYNC_CONFIG }
@@ -43,21 +42,21 @@ export class SyncService implements SyncServiceInterface {
 
       // Get posts from Notion
       const notionPosts = await getNotionPosts()
-      const postsToSync = postIds 
+      const postsToSync = postIds
         ? notionPosts.filter(post => postIds.includes(post.id))
         : notionPosts
 
       batch.totalOperations = postsToSync.length
-      
+
       // Process posts in batches
       const batches = this.chunkArray(postsToSync, this.config.batchSize)
-      
+
       for (const postBatch of batches) {
         const batchPromises = postBatch.map(post => this.syncSinglePostToSupabase(post, batch))
         await Promise.allSettled(batchPromises)
-        
+
         this.eventHandlers.onSyncProgress?.(
-          batch, 
+          batch,
           batch.successfulOperations + batch.failedOperations + batch.skippedOperations,
           batch.totalOperations
         )
@@ -86,11 +85,11 @@ export class SyncService implements SyncServiceInterface {
 
   async incrementalSync(): Promise<SyncBatch> {
     const batch = this.createSyncBatch()
-    
+
     try {
       // Get last sync timestamp from Supabase
       const lastSyncTime = await this.getLastSyncTime()
-      
+
       // Get posts from Notion that were modified after last sync
       const notionPosts = await getNotionPosts()
       const modifiedPosts = notionPosts.filter(post => {
@@ -171,11 +170,12 @@ export class SyncService implements SyncServiceInterface {
 
   async getSyncStats(): Promise<SyncStats> {
     try {
-      const supabase = getSupabaseClient()
-      
+      // Use service client on the server to bypass RLS for sync operations
+      const supabase = getSupabaseServiceClient()
+
       // Get total posts from Notion
       const notionPosts = await getNotionPosts()
-      
+
       // Get synced posts from Supabase
       const { data: supabasePosts, error } = await supabase
         .from('posts')
@@ -191,7 +191,7 @@ export class SyncService implements SyncServiceInterface {
         syncedPosts: supabasePosts?.length || 0,
         pendingPosts: notionPosts.length - (supabasePosts?.length || 0),
         failedPosts: 0, // Would need to track this in sync operations table
-        lastSyncTime,
+        lastSyncTime: lastSyncTime || undefined,
         syncDuration: 0, // Would calculate from sync batch data
         errors: []
       }
@@ -257,25 +257,25 @@ export class SyncService implements SyncServiceInterface {
 
   private async syncSinglePostToSupabase(post: TPost, batch: SyncBatch): Promise<SyncResult> {
     const operation = this.createSyncOperation('create', 'notion-to-supabase', post.id)
-    
+
     try {
       operation.status = 'in-progress'
-      
+
       // Check if post already exists in Supabase
       const existingPost = await this.findSupabasePostByNotionId(post.id)
-      
+
       if (existingPost) {
         // Update existing post
         operation.type = 'update'
         operation.supabaseId = existingPost.id
-        
+
         // Check for conflicts
         const hasConflict = await this.checkForConflicts(post, existingPost)
         if (hasConflict) {
           const conflict = await this.createConflict(post, existingPost)
           return await this.handleConflict(conflict, operation)
         }
-        
+
         const result = await this.updateSupabasePost(post, operation)
         if (result.success) {
           batch.successfulOperations++
@@ -293,12 +293,12 @@ export class SyncService implements SyncServiceInterface {
         }
         return result
       }
-      
+
     } catch (error) {
       operation.status = 'failed'
       operation.errorMessage = (error as Error).message
       batch.failedOperations++
-      
+
       return {
         operation,
         success: false,
@@ -309,9 +309,9 @@ export class SyncService implements SyncServiceInterface {
 
   private async createSupabasePost(post: TPost, operation: SyncOperation): Promise<SyncResult> {
     try {
-      const supabase = getSupabaseClient()
+      const supabase = getSupabaseServiceClient()
       const supabasePost = this.mapNotionPostToSupabase(post)
-      
+
       const { data, error } = await supabase
         .from('posts')
         .insert(supabasePost)
@@ -321,8 +321,8 @@ export class SyncService implements SyncServiceInterface {
       if (error) throw error
 
       operation.status = 'completed'
-      operation.supabaseId = data.id
-      
+      operation.supabaseId = String(data.id)
+
       return {
         operation,
         success: true,
@@ -331,7 +331,7 @@ export class SyncService implements SyncServiceInterface {
     } catch (error) {
       operation.status = 'failed'
       operation.errorMessage = (error as Error).message
-      
+
       return {
         operation,
         success: false,
@@ -342,9 +342,9 @@ export class SyncService implements SyncServiceInterface {
 
   private async updateSupabasePost(post: TPost, operation: SyncOperation): Promise<SyncResult> {
     try {
-      const supabase = getSupabaseClient()
+      const supabase = getSupabaseServiceClient()
       const supabasePost = this.mapNotionPostToSupabase(post)
-      
+
       const { data, error } = await supabase
         .from('posts')
         .update(supabasePost)
@@ -355,7 +355,7 @@ export class SyncService implements SyncServiceInterface {
       if (error) throw error
 
       operation.status = 'completed'
-      
+
       return {
         operation,
         success: true,
@@ -364,7 +364,7 @@ export class SyncService implements SyncServiceInterface {
     } catch (error) {
       operation.status = 'failed'
       operation.errorMessage = (error as Error).message
-      
+
       return {
         operation,
         success: false,
@@ -375,8 +375,8 @@ export class SyncService implements SyncServiceInterface {
 
   private async findSupabasePostByNotionId(notionId: string): Promise<SupabasePost | null> {
     try {
-      const supabase = getSupabaseClient()
-      
+      const supabase = getSupabaseServiceClient()
+
       const { data, error } = await supabase
         .from('posts')
         .select('*')
@@ -387,34 +387,48 @@ export class SyncService implements SyncServiceInterface {
         throw error
       }
 
-      return data as SupabasePost || null
+      return data as unknown as SupabasePost || null
     } catch (error) {
       return null
     }
   }
 
   private mapNotionPostToSupabase(post: TPost): Omit<SupabasePost, 'id' | 'created_at' | 'updated_at'> {
+    // Normalize and validate fields from TPost
+    const statusArray = Array.isArray(post.status) ? post.status : []
+    const isPublic = statusArray.some(s => s.includes('Public'))
+
+    let publishedAt: string | null = null
+    if (isPublic && post?.date?.start_date) {
+      try {
+        publishedAt = new Date(post.date.start_date).toISOString()
+      } catch {
+        publishedAt = null
+      }
+    }
+
     return {
       notion_id: post.id,
       title: post.title,
       slug: post.slug,
       content: {
-        // Store the full Notion post data as JSONB
         id: post.id,
         title: post.title,
-        summary: post.summary,
-        tags: post.tags,
-        category: post.category,
-        date: post.date,
-        type: post.type,
-        status: post.status
+        summary: post.summary || null,
+        tags: post.tags || [],
+        category: post.category || [],
+        date: post.date || null,
+        type: post.type || [],
+        status: statusArray,
+        createdTime: post.createdTime,
+        fullWidth: post.fullWidth,
       },
-      status: post.status?.includes('Public') ? 'published' : 'draft',
-      published_at: post.status?.includes('Public') ? new Date(post.date.start_date).toISOString() : null,
+      status: isPublic ? 'published' as const : 'draft',
+      published_at: publishedAt,
       tags: post.tags || [],
       category: post.category?.[0] || null,
       summary: post.summary || null,
-      cover_image: post.thumbnail || null
+      cover_image: post.thumbnail || null,
     }
   }
 
@@ -422,7 +436,7 @@ export class SyncService implements SyncServiceInterface {
     // Simple conflict detection based on update timestamps
     const notionUpdated = new Date(notionPost.createdTime)
     const supabaseUpdated = new Date(supabasePost.updated_at)
-    
+
     // If Supabase was updated after Notion, there might be a conflict
     return supabaseUpdated > notionUpdated
   }
@@ -458,7 +472,7 @@ export class SyncService implements SyncServiceInterface {
   private async getLastSyncTime(): Promise<Date | null> {
     try {
       const supabase = getSupabaseClient()
-      
+
       const { data, error } = await supabase
         .from('posts')
         .select('updated_at')
@@ -468,7 +482,7 @@ export class SyncService implements SyncServiceInterface {
 
       if (error || !data) return null
 
-      return new Date(data.updated_at)
+      return new Date(String(data.updated_at))
     } catch {
       return null
     }

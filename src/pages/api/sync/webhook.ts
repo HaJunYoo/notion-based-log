@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
+import { WEBHOOK_CONFIG } from 'src/libs/sync/config'
 import { syncService } from 'src/libs/sync/syncService'
 import { WebhookPayload } from 'src/libs/sync/types'
-import { WEBHOOK_CONFIG } from 'src/libs/sync/config'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Only allow POST requests
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Verify webhook secret
     const providedSecret = req.headers[WEBHOOK_CONFIG.SECRET_HEADER] as string
     const expectedSecret = process.env.SYNC_WEBHOOK_SECRET
-    
+
     if (!expectedSecret) {
       console.error('SYNC_WEBHOOK_SECRET environment variable not set')
       return res.status(500).json({ error: 'Webhook not configured' })
@@ -26,9 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Parse and validate payload
     const payload = req.body as WebhookPayload
-    
+
     if (!payload.event || !payload.notionId || !payload.timestamp) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid payload',
         required: ['event', 'notionId', 'timestamp']
       })
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Process webhook event
     const result = await processWebhookEvent(payload)
-    
+
     res.status(200).json({
       success: true,
       event: payload.event,
@@ -46,9 +46,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   } catch (error) {
     console.error('Webhook processing error:', error)
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Internal server error',
-      message: (error as Error).message 
+      message: (error as Error).message
     })
   }
 }
@@ -105,9 +105,9 @@ async function processWebhookEvent(payload: WebhookPayload) {
 
 async function deleteSupabasePost(notionId: string): Promise<boolean> {
   try {
-    const { getSupabaseClient } = await import('src/libs/supabase')
-    const supabase = getSupabaseClient()
-    
+    const { getSupabaseServiceClient } = await import('src/libs/supabase')
+    const supabase = getSupabaseServiceClient()
+
     const { error } = await supabase
       .from('posts')
       .delete()

@@ -30,13 +30,13 @@ export class TimestampTracker {
     const supabase = getSupabaseClient()
     const syncId = this.generateSyncId()
     
-    const timestamp: Omit<SyncTimestamp, 'id'> = {
+    const timestamp = {
       id: syncId,
       operation_type: operationType,
       direction,
       started_at: new Date().toISOString(),
       posts_synced: 0,
-      status: 'in_progress'
+      status: 'in_progress' as const
     }
 
     // Store in localStorage as fallback since we don't have sync_timestamps table yet
@@ -159,7 +159,7 @@ export class TimestampTracker {
 
       if (error) throw error
 
-      return data?.map(post => post.notion_id) || []
+      return data?.map(post => String(post.notion_id)) || []
     } catch (error) {
       console.error('Error getting modified posts:', error)
       return []
@@ -170,13 +170,15 @@ export class TimestampTracker {
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - olderThanDays)
 
-    // Clean up localStorage
+    // Clean up memory storage
     const timestamps = this.getAllLocalTimestamps()
     const filtered = timestamps.filter(t => 
       new Date(t.started_at) > cutoffDate
     )
     
-    localStorage.setItem('sync_timestamps', JSON.stringify(filtered))
+    // Clear and repopulate memory storage
+    this.memoryStorage.clear()
+    filtered.forEach(t => this.memoryStorage.set(t.id, t))
 
     // TODO: Clean up Supabase when table exists
     // const supabase = getSupabaseClient()
@@ -186,32 +188,25 @@ export class TimestampTracker {
     //   .lt('started_at', cutoffDate.toISOString())
   }
 
-  // Private helper methods for localStorage (temporary solution)
+  // Private helper methods for in-memory storage (server-side compatible)
+  private memoryStorage = new Map<string, SyncTimestamp>()
+
   private storeLocalTimestamp(syncId: string, timestamp: Partial<SyncTimestamp>): void {
-    const existing = this.getAllLocalTimestamps()
-    const index = existing.findIndex(t => t.id === syncId)
+    const existing = this.memoryStorage.get(syncId)
     
-    if (index >= 0) {
-      existing[index] = { ...existing[index], ...timestamp }
+    if (existing) {
+      this.memoryStorage.set(syncId, { ...existing, ...timestamp })
     } else {
-      existing.push(timestamp as SyncTimestamp)
+      this.memoryStorage.set(syncId, timestamp as SyncTimestamp)
     }
-    
-    localStorage.setItem('sync_timestamps', JSON.stringify(existing))
   }
 
   private getLocalTimestamp(syncId: string): SyncTimestamp | null {
-    const timestamps = this.getAllLocalTimestamps()
-    return timestamps.find(t => t.id === syncId) || null
+    return this.memoryStorage.get(syncId) || null
   }
 
   private getAllLocalTimestamps(): SyncTimestamp[] {
-    try {
-      const stored = localStorage.getItem('sync_timestamps')
-      return stored ? JSON.parse(stored) : []
-    } catch {
-      return []
-    }
+    return Array.from(this.memoryStorage.values())
   }
 
   private generateSyncId(): string {
