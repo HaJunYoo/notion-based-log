@@ -88,6 +88,10 @@ const DetailPage: NextPageWithLayout = () => {
     description: post.summary || "",
     type: post.type[0],
     url: `${CONFIG.link}/${post.slug}`,
+    robots:
+      post.type?.[0] === "Paper" || post.status?.[0] === "PublicOnDetail"
+        ? "noindex, follow"
+        : "index, follow",
   }
 
   return (
