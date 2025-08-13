@@ -137,11 +137,9 @@ class PostService extends BaseHybridService {
     const supabasePost = data as unknown as SupabasePost
     const post = this.mapSupabasePostToTPost(supabasePost)
 
-    // Prefer stored record map in Supabase content; fallback to fetching from Notion
-    let recordMap: any = (supabasePost as any)?.content?.record_map
-    if (!recordMap) {
-      recordMap = await getRecordMap(supabasePost.notion_id)
-    }
+    // Always fetch record map from Notion to ensure the latest content,
+    // regardless of any stored content in Supabase
+    const recordMap: any = await getRecordMap(supabasePost.notion_id)
 
     if (!recordMap) {
       throw new Error(`Could not fetch record map for post ${slug}`)
