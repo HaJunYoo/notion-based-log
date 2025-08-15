@@ -8,7 +8,7 @@ import styled from "@emotion/styled"
 import NotionRenderer from "../components/NotionRenderer"
 import usePostQuery from "src/hooks/usePostQuery"
 import usePostsQuery from "src/hooks/usePostsQuery"
-import { useHybridPostDetailQuery } from "src/hooks/useHybridPostQuery"
+import { useQuery } from "@tanstack/react-query"
 
 
 type Props = {}
@@ -17,11 +17,20 @@ const PostDetail: React.FC<Props> = () => {
   const data = usePostQuery()
   const allPosts = usePostsQuery()
   
-  // Fetch recordMap separately on client-side
-  const { data: detailData, isLoading: isLoadingDetail } = useHybridPostDetailQuery(
-    data?.slug || '', 
-    { enabled: !!data?.slug }
-  )
+  // Fetch recordMap via server-side API
+  const { data: detailData, isLoading: isLoadingDetail, error } = useQuery({
+    queryKey: ['post-detail-api', data?.slug],
+    queryFn: async () => {
+      const response = await fetch(`/api/posts/${data?.slug}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch post detail')
+      }
+      return response.json()
+    },
+    enabled: !!data?.slug,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    retry: 2
+  })
 
   if (!data) return null
   
@@ -36,9 +45,21 @@ const PostDetail: React.FC<Props> = () => {
     )
   }
 
-  const recordMap = detailData?.data?.recordMap
-  if (!recordMap) return null
+  // If API call failed, show error message
+  if (error || !detailData?.success || !detailData?.data?.recordMap) {
+    return (
+      <StyledWrapper>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <div>Content could not be loaded.</div>
+          <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.5rem' }}>
+            Please try again later.
+          </div>
+        </div>
+      </StyledWrapper>
+    )
+  }
 
+  const recordMap = detailData.data.recordMap
   const category = (data.category && data.category?.[0]) || undefined
 
   return (
