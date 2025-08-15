@@ -35,33 +35,6 @@ const PostDetail: React.FC<Props> = () => {
 
   if (!data) return null
 
-  // Show loading spinner while recordMap is being fetched
-  if (isLoadingDetail) {
-    return (
-      <StyledWrapper>
-        <LoadingContainer>
-          <Spinner />
-          <LoadingText>Loading content...</LoadingText>
-          <LoadingSubtext>Fetching the latest content from Source</LoadingSubtext>
-        </LoadingContainer>
-      </StyledWrapper>
-    )
-  }
-
-  // If API call failed, show error message
-  if (error || !detailData?.success || !detailData?.data?.recordMap) {
-    return (
-      <StyledWrapper>
-        <ErrorContainer>
-          <ErrorIcon>⚠️</ErrorIcon>
-          <ErrorTitle>Content could not be loaded</ErrorTitle>
-          <ErrorText>Please try again later or check your connection.</ErrorText>
-        </ErrorContainer>
-      </StyledWrapper>
-    )
-  }
-
-  const recordMap = detailData.data.recordMap
   const category = (data.category && data.category?.[0]) || undefined
 
   return (
@@ -75,9 +48,21 @@ const PostDetail: React.FC<Props> = () => {
           </div>
         )}
         {data.type[0] === "Post" && <PostHeader data={data} />}
+        
         <div>
-          <NotionRenderer recordMap={recordMap} />
+          {isLoadingDetail ? (
+            <ContentSkeleton />
+          ) : error || !detailData?.success || !detailData?.data?.recordMap ? (
+            <ErrorContainer>
+              <ErrorIcon>⚠️</ErrorIcon>
+              <ErrorTitle>Content could not be loaded</ErrorTitle>
+              <ErrorText>Please try again later or check your connection.</ErrorText>
+            </ErrorContainer>
+          ) : (
+            <NotionRenderer recordMap={detailData.data.recordMap} />
+          )}
         </div>
+        
         {data.type[0] === "Post" && (
           <>
             <Footer />
@@ -90,22 +75,26 @@ const PostDetail: React.FC<Props> = () => {
   )
 }
 
+// Content Skeleton Component
+const ContentSkeleton: React.FC = () => (
+  <ContentSkeletonWrapper>
+    {Array.from({ length: 8 }, (_, i) => (
+      <div key={i} className="skeleton-line" />
+    ))}
+  </ContentSkeletonWrapper>
+)
+
 export default PostDetail
 
 // Keyframes for animations
-const spin = keyframes`
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-`
-
 const fadeIn = keyframes`
   0% { opacity: 0; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
 `
 
-const pulse = keyframes`
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+const shimmer = keyframes`
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 `
 
 // Styled Components
@@ -130,40 +119,7 @@ const StyledWrapper = styled.div`
   }
 `
 
-const LoadingContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  min-height: 300px;
-  animation: ${fadeIn} 0.3s ease-out;
-`
 
-const Spinner = styled.div`
-  width: 40px;
-  height: 40px;
-  border: 3px solid ${({ theme }) => theme.colors.gray6};
-  border-top: 3px solid ${({ theme }) => theme.colors.blue8};
-  border-radius: 50%;
-  animation: ${spin} 1s linear infinite;
-  margin-bottom: 1.5rem;
-`
-
-const LoadingText = styled.div`
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.gray12};
-  margin-bottom: 0.5rem;
-  animation: ${pulse} 2s ease-in-out infinite;
-`
-
-const LoadingSubtext = styled.div`
-  font-size: 0.875rem;
-  color: ${({ theme }) => theme.colors.gray10};
-  text-align: center;
-  max-width: 300px;
-`
 
 const ErrorContainer = styled.div`
   display: flex;
@@ -194,4 +150,35 @@ const ErrorText = styled.div`
   text-align: center;
   max-width: 400px;
   line-height: 1.5;
+`
+
+const ContentSkeletonWrapper = styled.div`
+  padding: 2rem 0;
+  animation: ${fadeIn} 0.3s ease-out;
+
+  .skeleton-line {
+    height: 1rem;
+    background: linear-gradient(90deg, 
+      ${({ theme }) => theme.scheme === "light" ? "#f0f0f0" : theme.colors.gray6} 25%, 
+      ${({ theme }) => theme.scheme === "light" ? "#e0e0e0" : theme.colors.gray5} 50%, 
+      ${({ theme }) => theme.scheme === "light" ? "#f0f0f0" : theme.colors.gray6} 75%
+    );
+    background-size: 200% 100%;
+    animation: ${shimmer} 1.5s infinite;
+    border-radius: 0.25rem;
+    margin-bottom: 0.75rem;
+
+    &:nth-of-type(1) { 
+      width: 60%; 
+      height: 1.5rem; 
+      margin-bottom: 1.5rem; 
+    }
+    &:nth-of-type(2) { width: 100%; }
+    &:nth-of-type(3) { width: 95%; }
+    &:nth-of-type(4) { width: 85%; }
+    &:nth-of-type(5) { width: 90%; }
+    &:nth-of-type(6) { width: 70%; }
+    &:nth-of-type(7) { width: 88%; }
+    &:nth-of-type(8) { width: 75%; }
+  }
 `
