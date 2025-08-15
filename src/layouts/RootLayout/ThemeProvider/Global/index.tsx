@@ -27,6 +27,9 @@ export const Global = () => {
           font-weight: ${pretendard.style.fontWeight};
           font-style: ${pretendard.style.fontStyle};
           font-size: 100%; /* Respect user's browser settings */
+          -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
+          text-size-adjust: 100%;
         }
 
         * {

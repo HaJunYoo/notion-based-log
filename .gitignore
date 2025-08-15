@@ -43,3 +43,43 @@ public/robots.txt
 public/sitemap.xml
 
 /.firebase
+
+# Logs
+logs
+*.log
+dev-debug.log
+# Dependency directories
+node_modules/
+# Environment variables
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+
+# Task Master files
+tasks.json
+tasks/
+.taskmaster/
+.claude/
+.cursor/
+.mcp.json
+
+# Task Master sensitive data
+tm-*.json
+taskmaster-*.json
+*-taskmaster.json
+*.taskmaster.json
+
+# Task Master logs
+taskmaster.log
+tm.log
+task-master.log
+
+# Task Master cache
+.tm-cache/
+.taskmaster-cache/

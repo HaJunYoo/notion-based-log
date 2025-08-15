@@ -1,5 +1,5 @@
-import { CONFIG } from "site.config"
 import Head from "next/head"
+import { CONFIG } from "site.config"
 
 export type MetaConfigProps = {
   title: string
@@ -7,6 +7,7 @@ export type MetaConfigProps = {
   type: "Website" | "Post" | "Page" | string
   date?: string
   image?: string
+  robots?: string
   url: string
 }
 
@@ -14,7 +15,7 @@ const MetaConfig: React.FC<MetaConfigProps> = (props) => {
   return (
     <Head>
       <title>{props.title}</title>
-      <meta name="robots" content="follow, index" />
+      <meta name="robots" content={props.robots ?? "follow, index"} />
       <meta charSet="UTF-8" />
       <meta name="description" content={props.description} />
       <link rel="canonical" href={props.url} />

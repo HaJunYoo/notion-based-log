@@ -43,6 +43,11 @@ export type TConfig = {
   notionConfig: {
     pageId: string
   }
+  supabaseConfig: {
+    url: string
+    anonKey: string
+    enable: boolean
+  }
   googleAnalytics: {
     enable: boolean
     config: {
@@ -100,7 +105,7 @@ export type TPost = {
   status: TPostStatus[]
   createdTime: string
   fullWidth: boolean
-  thumbnail?: string
+  thumbnail?: string | null
 }
 
 export type PostDetail = TPost & {

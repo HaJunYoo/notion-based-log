@@ -95,8 +95,9 @@ const RelatedPosts: React.FC<Props> = ({ currentPost, allPosts }) => {
     <StyledWrapper>
       <h4>Related Posts</h4>
       <div className="posts-grid">
-        {relatedPosts.map(post => (
-          <Link key={post.id} href={`/${post.slug}`} className="post-item">
+        {relatedPosts.map(post => {
+          const isPaper = post.type?.[0] === "Paper"
+          const Item = (
             <article>
               <h6>{post.title}</h6>
               <div className="meta">
@@ -111,8 +112,13 @@ const RelatedPosts: React.FC<Props> = ({ currentPost, allPosts }) => {
                 )}
               </div>
             </article>
-          </Link>
-        ))}
+          )
+          return isPaper ? (
+            <div key={post.id} className="post-item">{Item}</div>
+          ) : (
+            <Link key={post.id} href={`/${post.slug}`} className="post-item">{Item}</Link>
+          )
+        })}
       </div>
     </StyledWrapper>
   )

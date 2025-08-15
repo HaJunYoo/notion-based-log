@@ -1,7 +1,7 @@
 import { dehydrate } from "@tanstack/react-query"
 import { GetStaticProps } from "next"
 import { CONFIG } from "site.config"
-import { getPosts, getRecordMap } from "src/apis"
+import { getPosts } from "src/apis"
 import MetaConfig from "src/components/MetaConfig"
 import { queryKey } from "src/constants/queryKey"
 import usePostQuery from "src/hooks/usePostQuery"
@@ -17,6 +17,18 @@ const filter: FilterPostsOptions = {
   acceptType: ["Paper", "Post", "Page"],
 }
 
+// Function to get recent posts for selective pre-generation
+const getRecentPosts = (posts: any[], limit: number = 20) => {
+  return posts
+    .sort((a, b) => {
+      // Sort by date (newest first)
+      const dateA = new Date(a.date?.start_date || a.createdTime)
+      const dateB = new Date(b.date?.start_date || b.createdTime)
+      return dateB.getTime() - dateA.getTime()
+    })
+    .slice(0, limit)
+}
+
 export const getStaticPaths = async () => {
   const posts = await getPosts()
   const filteredPost = filterPosts(posts, filter)
@@ -25,7 +37,7 @@ export const getStaticPaths = async () => {
     paths: filteredPost
       .filter((row) => row.slug !== "about")
       .map((row) => `/${row.slug}`),
-    fallback: true,
+    fallback: 'blocking',
   }
 }
 
@@ -39,17 +51,19 @@ export const getStaticProps: GetStaticProps = async (context) => {
   }
 
   const posts = await getPosts()
-  const feedPosts = filterPosts(posts)
+  const feedPosts = filterPosts(posts).map((p: any) => ({ ...p, thumbnail: p.thumbnail ?? null }))
   await queryClient.prefetchQuery(queryKey.posts(), () => feedPosts)
 
   const detailPosts = filterPosts(posts, filter)
   const postDetail = detailPosts.find((t: any) => t.slug === slug)
-  const recordMap = await getRecordMap(postDetail?.id!)
-
-  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => ({
-    ...postDetail,
-    recordMap,
-  }))
+  
+  if (!postDetail) {
+    return { notFound: true }
+  }
+  
+  // Only prefetch post metadata (without recordMap) to avoid ISR size warnings
+  const postMeta = { ...postDetail, thumbnail: postDetail.thumbnail ?? null }
+  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => postMeta)
 
   return {
     props: {
@@ -78,6 +92,10 @@ const DetailPage: NextPageWithLayout = () => {
     description: post.summary || "",
     type: post.type[0],
     url: `${CONFIG.link}/${post.slug}`,
+    robots:
+      post.type?.[0] === "Paper" || post.status?.[0] === "PublicOnDetail"
+        ? "noindex, follow"
+        : "index, follow",
   }
 
   return (
