@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react"
-import PostHeader from "./PostHeader"
-import Footer from "./PostFooter"
-import CommentBox from "./CommentBox"
-import RelatedPosts from "./RelatedPosts"
-import Category from "src/components/Category"
-import styled from "@emotion/styled"
 import { keyframes } from "@emotion/react"
-import NotionRenderer from "../components/NotionRenderer"
+import styled from "@emotion/styled"
+import { useQuery } from "@tanstack/react-query"
+import React from "react"
+import Category from "src/components/Category"
 import usePostQuery from "src/hooks/usePostQuery"
 import usePostsQuery from "src/hooks/usePostsQuery"
-import { useQuery } from "@tanstack/react-query"
+import NotionRenderer from "../components/NotionRenderer"
+import CommentBox from "./CommentBox"
+import Footer from "./PostFooter"
+import PostHeader from "./PostHeader"
+import RelatedPosts from "./RelatedPosts"
 
 
 type Props = {}
@@ -17,7 +17,7 @@ type Props = {}
 const PostDetail: React.FC<Props> = () => {
   const data = usePostQuery()
   const allPosts = usePostsQuery()
-  
+
   // Fetch recordMap via server-side API
   const { data: detailData, isLoading: isLoadingDetail, error } = useQuery({
     queryKey: ['post-detail-api', data?.slug],
@@ -34,7 +34,7 @@ const PostDetail: React.FC<Props> = () => {
   })
 
   if (!data) return null
-  
+
   // Show loading spinner while recordMap is being fetched
   if (isLoadingDetail) {
     return (
@@ -42,7 +42,7 @@ const PostDetail: React.FC<Props> = () => {
         <LoadingContainer>
           <Spinner />
           <LoadingText>Loading content...</LoadingText>
-          <LoadingSubtext>Fetching the latest content from Notion</LoadingSubtext>
+          <LoadingSubtext>Fetching the latest content from Source</LoadingSubtext>
         </LoadingContainer>
       </StyledWrapper>
     )
