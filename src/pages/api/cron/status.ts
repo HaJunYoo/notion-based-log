@@ -21,6 +21,6 @@ export default async function handler(
     hasNotionConfig: !!process.env.NOTION_PAGE_ID,
     hasRevalidateToken: !!process.env.TOKEN_FOR_REVALIDATE,
     cronJobEndpoint: '/api/cron/revalidate-all',
-    schedule: '0 */6 * * * (every 6 hours)'
+    schedule: '0 2 * * * (daily at 2 AM)'
   })
 }
