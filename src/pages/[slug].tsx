@@ -2,7 +2,6 @@ import { dehydrate } from "@tanstack/react-query"
 import { GetStaticProps } from "next"
 import { CONFIG } from "site.config"
 import { getPosts } from "src/apis"
-import { postService } from "src/apis/hybrid"
 import MetaConfig from "src/components/MetaConfig"
 import { queryKey } from "src/constants/queryKey"
 import usePostQuery from "src/hooks/usePostQuery"
@@ -57,9 +56,14 @@ export const getStaticProps: GetStaticProps = async (context) => {
 
   const detailPosts = filterPosts(posts, filter)
   const postDetail = detailPosts.find((t: any) => t.slug === slug)
-  const detailResp = await postService.getPostDetail(String(slug))
-  const safeDetail = { ...detailResp.data, thumbnail: detailResp.data.thumbnail ?? null }
-  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => safeDetail)
+  
+  if (!postDetail) {
+    return { notFound: true }
+  }
+  
+  // Only prefetch post metadata (without recordMap) to avoid ISR size warnings
+  const postMeta = { ...postDetail, thumbnail: postDetail.thumbnail ?? null }
+  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => postMeta)
 
   return {
     props: {

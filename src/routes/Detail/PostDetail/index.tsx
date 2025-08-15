@@ -8,6 +8,7 @@ import styled from "@emotion/styled"
 import NotionRenderer from "../components/NotionRenderer"
 import usePostQuery from "src/hooks/usePostQuery"
 import usePostsQuery from "src/hooks/usePostsQuery"
+import { useHybridPostDetailQuery } from "src/hooks/useHybridPostQuery"
 
 
 type Props = {}
@@ -15,8 +16,28 @@ type Props = {}
 const PostDetail: React.FC<Props> = () => {
   const data = usePostQuery()
   const allPosts = usePostsQuery()
+  
+  // Fetch recordMap separately on client-side
+  const { data: detailData, isLoading: isLoadingDetail } = useHybridPostDetailQuery(
+    data?.slug || '', 
+    { enabled: !!data?.slug }
+  )
 
   if (!data) return null
+  
+  // Show loading spinner while recordMap is being fetched
+  if (isLoadingDetail) {
+    return (
+      <StyledWrapper>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <div>Loading content...</div>
+        </div>
+      </StyledWrapper>
+    )
+  }
+
+  const recordMap = detailData?.data?.recordMap
+  if (!recordMap) return null
 
   const category = (data.category && data.category?.[0]) || undefined
 
@@ -32,7 +53,7 @@ const PostDetail: React.FC<Props> = () => {
         )}
         {data.type[0] === "Post" && <PostHeader data={data} />}
         <div>
-          <NotionRenderer recordMap={data.recordMap} />
+          <NotionRenderer recordMap={recordMap} />
         </div>
         {data.type[0] === "Post" && (
           <>
