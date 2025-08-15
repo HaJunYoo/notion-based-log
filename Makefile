@@ -6,10 +6,7 @@ ifneq (,$(wildcard .env.local))
     export
 endif
 
-# Required environment variables with fallback to .env.local values
-NOTION_PAGE_ID ?= $(NOTION_PAGE_ID)
-NEXT_JS_SITE_URL ?= $(NEXT_JS_SITE_URL)
-TOKEN_FOR_REVALIDATE ?= $(TOKEN_FOR_REVALIDATE)
+# Required environment variables (will use values from .env.local if not set)
 
 # Environment variable validation
 check-env:
