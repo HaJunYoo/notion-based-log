@@ -62,8 +62,6 @@ node_modules/
 # OS specific
 
 # Task Master files
-tasks.json
-tasks/
 .taskmaster/
 .claude/
 .cursor/
@@ -83,3 +81,7 @@ task-master.log
 # Task Master cache
 .tm-cache/
 .taskmaster-cache/
+
+# Task files
+# tasks.json
+# tasks/ 

@@ -64,7 +64,7 @@ const CategoryList: React.FC<Props> = () => {
           onClick={() => handleClickCategory(DEFAULT_CATEGORY)}
           className="all-category"
         >
-          All <span style={{ color: 'var(--colors-gray9)', marginLeft: '6px' }}>({posts?.length || 0})</span>
+          All <CategoryCount>({posts?.length || 0})</CategoryCount>
         </a>
 
         {/* 계층 구조로 카테고리 표시 */}
@@ -81,7 +81,7 @@ const CategoryList: React.FC<Props> = () => {
                 className="major-category"
               >
                 <span className="category-content">
-                  {major} <span style={{ color: 'var(--colors-gray9)', marginLeft: '6px' }}>({data.count})</span>
+                  {major} <MajorCategoryCount>({data.count})</MajorCategoryCount>
                 </span>
                 {hasMinorCategories && (
                   <span
@@ -102,7 +102,7 @@ const CategoryList: React.FC<Props> = () => {
                   onClick={() => handleClickCategory(`${major}/${minor}`)}
                   className="minor-category"
                 >
-                  {minor} <span style={{ color: 'var(--colors-gray11)', marginLeft: '6px' }}>({count})</span>
+                  {minor} <MinorCategoryCount>({count})</MinorCategoryCount>
                 </a>
               ))}
             </div>
@@ -237,7 +237,7 @@ const StyledWrapper = styled.div`
           cursor: pointer;
           font-size: 0.75rem;
           font-weight: 600;
-          color: ${({ theme }) => theme.colors.gray9};
+          color: ${({ theme }) => theme.colors.gray10};
           transition: all 0.15s ease;
           width: 12px;
           display: inline-flex;
@@ -245,14 +245,14 @@ const StyledWrapper = styled.div`
           align-items: center;
 
           :hover {
-            color: ${({ theme }) => theme.colors.gray11};
+            color: ${({ theme }) => theme.colors.gray12};
           }
         }
       }
 
       &.minor-category {
         font-size: 0.8125rem;
-        color: ${({ theme }) => theme.colors.gray10};
+        color: ${({ theme }) => theme.colors.gray11};
         padding: 0.25rem 0.625rem;
         margin: 0.03125rem 0;
 
@@ -270,7 +270,7 @@ const StyledWrapper = styled.div`
         &::before {
           content: "•";
           margin-right: 0.5rem;
-          color: ${({ theme }) => theme.colors.gray9};
+          color: ${({ theme }) => theme.colors.gray10};
 
           @media (min-width: 1024px) {
             position: absolute;
@@ -292,4 +292,26 @@ const StyledWrapper = styled.div`
       }
     }
   }
+`
+
+// 카테고리 개수 표시용 styled components
+const CategoryCount = styled.span`
+  color: ${({ theme }) => theme.colors.gray10}; /* gray9 → gray10으로 더 밝게 */
+  margin-left: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 400;
+`
+
+const MajorCategoryCount = styled.span`
+  color: ${({ theme }) => theme.colors.gray10}; /* 대분류 개수 */
+  margin-left: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 400;
+`
+
+const MinorCategoryCount = styled.span`
+  color: ${({ theme }) => theme.colors.gray10}; /* 소분류는 계층감을 위해 조금 더 어둡게 */
+  margin-left: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 400;
 `

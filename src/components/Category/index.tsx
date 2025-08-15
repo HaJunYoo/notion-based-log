@@ -2,7 +2,6 @@ import { useRouter } from "next/router"
 import React from "react"
 import { COLOR_SET } from "./constants"
 import styled from "@emotion/styled"
-import { colors } from "src/styles"
 
 export const getColorClassByName = (name: string): string => {
   try {
@@ -53,8 +52,12 @@ const StyledWrapper = styled.div`
   width: fit-content;
   font-size: 0.625rem;
   line-height: 0.875rem;
-  opacity: 0.9;
-  color: ${colors.dark.gray1};
+  opacity: 0.95;
+  color: ${({ theme }) => 
+    theme.scheme === "light" ? "rgba(0, 0, 0, 0.8)" : theme.colors.gray1}; /* 라이트 모드에서 어두운 글씨 */
+  font-weight: 500; /* 600 → 500으로 덜 볼드하게 */
+  text-shadow: ${({ theme }) => 
+    theme.scheme === "light" ? "0 0.5px 1px rgba(255, 255, 255, 0.3)" : "none"}; /* 라이트 모드에서 미세한 밝은 섀도우 */
 
   @media (min-width: 768px) {
     padding-top: 0.2rem;
