@@ -1,5 +1,5 @@
 {
-	"amp.mcpServers": {
+	"context_servers": {
 		"task-master-ai": {
 			"command": "npx",
 			"args": [
