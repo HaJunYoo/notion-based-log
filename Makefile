@@ -1,4 +1,4 @@
-.PHONY: setup dev run local revalidate-all revalidate-post revalidate-cron help-revalidate
+.PHONY: setup dev run local revalidate revalidate-post
 
 NOTION_PAGE_ID= :=
 setup:
@@ -33,3 +33,10 @@ help-revalidate:
 	@echo "  make revalidate-all TOKEN_FOR_REVALIDATE=your_token"
 	@echo "  make revalidate-post SLUG=post-slug TOKEN_FOR_REVALIDATE=your_token"
 	@echo "  make revalidate-cron TOKEN_FOR_REVALIDATE=your_token"
+
+# Manual revalidation
+revalidate:
+@curl -s "http://localhost:3000/api/revalidate?secret=$(TOKEN)"
+
+revalidate-post:
+@curl -s "http://localhost:3000/api/revalidate?secret=$(TOKEN)&path=/$(SLUG)"
