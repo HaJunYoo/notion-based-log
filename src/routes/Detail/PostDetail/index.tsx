@@ -48,7 +48,7 @@ const PostDetail: React.FC<Props> = () => {
           </div>
         )}
         {data.type[0] === "Post" && <PostHeader data={data} />}
-        
+
         <div>
           {isLoadingDetail ? (
             <ContentSkeleton />
@@ -62,7 +62,7 @@ const PostDetail: React.FC<Props> = () => {
             <NotionRenderer recordMap={detailData.data.recordMap} />
           )}
         </div>
-        
+
         {data.type[0] === "Post" && (
           <>
             <Footer />
@@ -158,9 +158,9 @@ const ContentSkeletonWrapper = styled.div`
 
   .skeleton-line {
     height: 1rem;
-    background: linear-gradient(90deg, 
-      ${({ theme }) => theme.scheme === "light" ? "#f0f0f0" : theme.colors.gray6} 25%, 
-      ${({ theme }) => theme.scheme === "light" ? "#e0e0e0" : theme.colors.gray5} 50%, 
+    background: linear-gradient(90deg,
+      ${({ theme }) => theme.scheme === "light" ? "#f0f0f0" : theme.colors.gray6} 25%,
+      ${({ theme }) => theme.scheme === "light" ? "#e0e0e0" : theme.colors.gray5} 50%,
       ${({ theme }) => theme.scheme === "light" ? "#f0f0f0" : theme.colors.gray6} 75%
     );
     background-size: 200% 100%;
@@ -168,10 +168,10 @@ const ContentSkeletonWrapper = styled.div`
     border-radius: 0.25rem;
     margin-bottom: 0.75rem;
 
-    &:nth-of-type(1) { 
-      width: 60%; 
-      height: 1.5rem; 
-      margin-bottom: 1.5rem; 
+    &:nth-of-type(1) {
+      width: 60%;
+      height: 1.5rem;
+      margin-bottom: 1.5rem;
     }
     &:nth-of-type(2) { width: 100%; }
     &:nth-of-type(3) { width: 95%; }
