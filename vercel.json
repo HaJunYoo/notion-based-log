@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/revalidate-all",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
