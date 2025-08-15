@@ -116,7 +116,7 @@ const PostList: React.FC<Props> = ({ q }) => {
 
         {filteredPosts.length > 0 && (
           <PostInfo>
-            총 {filteredPosts.length}개의 글 중 {startIndex + 1}-{Math.min(endIndex, filteredPosts.length)}번째
+            Showing {startIndex + 1}-{Math.min(endIndex, filteredPosts.length)} of {filteredPosts.length} posts
           </PostInfo>
         )}
       </PostListContainer>
@@ -137,14 +137,15 @@ const PostListContainer = styled.div`
 `
 
 const EmptyMessage = styled.p`
-  color: ${({ theme }) => theme.colors.gray7};
+  color: ${({ theme }) => theme.colors.gray9};
   text-align: center;
   padding: 2rem 0;
 `
 
 const PostInfo = styled.div`
   text-align: center;
-  color: ${({ theme }) => theme.colors.gray7};
-  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.gray11}; /* gray9 → gray11로 더 밝게 */
+  font-size: 0.8125rem;
   margin: 1rem 0;
+  font-weight: 500;
 `

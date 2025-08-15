@@ -54,7 +54,7 @@ const Pagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        이전
+        Prev
       </PageButton>
 
       {visiblePages.map((page, index) => (
@@ -76,7 +76,7 @@ const Pagination: React.FC<PaginationProps> = ({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
-        다음
+        Next
       </PageButton>
     </PaginationContainer>
   )
@@ -88,42 +88,64 @@ const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
-  margin: 2rem 0;
+  gap: 0.0625rem; /* 0.125rem → 0.0625rem로 더 촘촘하게 */
+  margin: 1rem 0; /* 1.25rem → 1rem로 더 컴팩트하게 */
   flex-wrap: wrap;
 `
 
 const PageButton = styled.button<{ isActive?: boolean }>`
-  padding: 0.5rem 0.75rem;
-  border: 1px solid ${({ theme }) => theme.colors.gray5};
+  padding: 0.25rem 0.375rem; /* 0.375rem 0.5rem → 0.25rem 0.375rem로 더 작게 */
+  border: none;
   background: ${({ theme, isActive }) =>
-    isActive ? theme.colors.gray10 : theme.colors.gray1};
+    isActive ? theme.colors.gray10 : 'transparent'};
   color: ${({ theme, isActive }) =>
-    isActive ? theme.colors.gray1 : theme.colors.gray10};
-  border-radius: 0.375rem;
+    isActive ? theme.colors.gray1 : theme.colors.gray11};
+  border-radius: 0.25rem;
   cursor: pointer;
-  font-size: 0.875rem;
-  min-width: 2.5rem;
-  transition: all 0.2s ease;
+  font-size: 0.75rem; /* 0.8125rem → 0.75rem로 더 작게 */
+  min-width: 1.5rem; /* 1.75rem → 1.5rem로 더 작게 */
+  height: 1.5rem; /* 1.75rem → 1.5rem로 더 작게 */
+  transition: all 0.15s ease;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover:not(:disabled) {
     background: ${({ theme, isActive }) =>
-      isActive ? theme.colors.gray10 : theme.colors.gray3};
+      isActive ? theme.colors.gray10 : theme.colors.gray2};
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
   }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
   }
 
   @media (max-width: 768px) {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.75rem;
-    min-width: 2rem;
+    padding: 0.1875rem 0.25rem; /* 더 작게 */
+    font-size: 0.6875rem; /* 더 작게 */
+    min-width: 1.25rem; /* 더 작게 */
+    height: 1.25rem; /* 더 작게 */
   }
 `
 
 const Dots = styled.span`
-  padding: 0.5rem 0.25rem;
-  color: ${({ theme }) => theme.colors.gray7};
+  padding: 0.25rem 0.0625rem; /* 더 작게 */
+  color: ${({ theme }) => theme.colors.gray9};
+  font-size: 0.75rem; /* 더 작게 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.5rem; /* 더 작게 */
+  font-weight: 500;
+  
+  @media (max-width: 768px) {
+    height: 1.25rem; /* 더 작게 */
+    font-size: 0.6875rem; /* 더 작게 */
+    padding: 0.1875rem 0.0625rem; /* 더 작게 */
+  }
 `
