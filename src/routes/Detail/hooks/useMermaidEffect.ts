@@ -263,7 +263,6 @@ const useMermaidEffect = () => {
                   min-height: ${newHeight}px !important;
                   padding: 8px 16px !important;
                 `)
-                })
               })
               
               element.innerHTML = svgElement.outerHTML
