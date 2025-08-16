@@ -29,14 +29,15 @@ const StyledWrapper = styled.div`
   }
   /** 미니멀한 Mermaid 스타일링 **/
   code[class*="language-mermaid"],
-  pre[class*="language-mermaid"] {
+  pre[class*="language-mermaid"],
+  .notion-code.language-mermaid {
     background: ${({ theme }) => theme.colors.gray5};
-    padding: 1rem;
+    padding: 1.5rem;
     border-radius: 8px;
-    overflow-x: auto;
-    overflow-y: visible;
+    overflow: visible;
     
     svg {
+      max-width: 100%;
       height: auto;
       display: block;
       margin: 0 auto;
@@ -51,6 +52,7 @@ const StyledWrapper = styled.div`
       /* 노드 라벨 최소 너비 설정 */
       .nodeLabel {
         min-width: 120px !important;
+        max-width: 150px !important;
         white-space: normal !important;
         word-wrap: break-word !important;
         text-align: center !important;
@@ -80,6 +82,12 @@ const StyledWrapper = styled.div`
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        min-width: 180px !important;
+      }
+      
+      /* rect 요소 직접 조정 */
+      .node rect {
+        min-width: 180px !important;
       }
       
       /* 엣지 라벨 최소 너비 설정 */
@@ -106,6 +114,15 @@ const StyledWrapper = styled.div`
           padding: 4px 8px !important;
         }
       }
+    }
+  }
+  
+  /* 모바일에서 패딩 조정 */
+  @media (max-width: 768px) {
+    code[class*="language-mermaid"],
+    pre[class*="language-mermaid"],
+    .notion-code.language-mermaid {
+      padding: 1rem;
     }
   }
 `

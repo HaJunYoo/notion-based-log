@@ -1,22 +1,23 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import mermaid from "mermaid"
 import { useEffect, useState } from "react"
 import { queryKey } from "src/constants/queryKey"
-import useScheme from "src/hooks/useScheme"
 
 /**
  *  Wait for mermaid to be defined in the dom
  *  Additionally, verify that the HTML CollectionOf has an array value.
  */
 const waitForMermaid = (interval = 100, timeout = 5000) => {
-  return new Promise<HTMLCollectionOf<Element>>((resolve, reject) => {
+  return new Promise<Element[]>((resolve, reject) => {
     const startTime = Date.now()
-    const elements: HTMLCollectionOf<Element> =
-      document.getElementsByClassName("language-mermaid")
-
+    
     const checkMerMaidCode = () => {
-      if (mermaid.render !== undefined && elements.length > 0) {
-        resolve(elements)
+      const elements1 = Array.from(document.getElementsByClassName("language-mermaid"))
+      const elements2 = Array.from(document.querySelectorAll(".notion-code.language-mermaid"))
+      const allElements = [...elements1, ...elements2]
+      
+      if (mermaid.render !== undefined && allElements.length > 0) {
+        resolve(allElements)
       } else if (Date.now() - startTime >= timeout) {
         reject(new Error(`mermaid is not defined within the timeout period.`))
       } else {
@@ -38,7 +39,9 @@ const useMermaidEffect = () => {
     if (!isFetched) return
     const isDark = (data as "dark" | "light") === "dark"
     
-    mermaid.initialize({
+    // DOM이 완전히 준비될 때까지 대기
+    const timeoutId = setTimeout(() => {
+      mermaid.initialize({
       startOnLoad: true,
       theme: isDark ? "dark" : "default",
       themeVariables: {
@@ -51,8 +54,8 @@ const useMermaidEffect = () => {
         htmlLabels: true,
         padding: 30,
         nodeSpacing: 60,
-        rankSpacing: 60,
-        wrappingWidth: 200,
+        rankSpacing: 70,
+        wrappingWidth: 400,
       },
       sequence: {
         useMaxWidth: false,
@@ -69,8 +72,8 @@ const useMermaidEffect = () => {
 
     waitForMermaid()
       .then(async (elements) => {
-        const promises = Array.from(elements)
-          .filter((elements) => elements.tagName === "PRE")
+        const promises = elements
+          .filter((element) => element.tagName === "PRE" || element.classList.contains("notion-code"))
           .map(async (element, i) => {
             if (memoMermaid.get(i) !== undefined) {
               const svg = await mermaid
@@ -99,6 +102,11 @@ const useMermaidEffect = () => {
       .catch((error) => {
         console.warn(error)
       })
+    }, 300) // 300ms 지연
+
+    return () => {
+      clearTimeout(timeoutId)
+    }
   }, [data, isFetched, memoMermaid])
 
   return
