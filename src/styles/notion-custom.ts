@@ -121,7 +121,20 @@ export const notionCustomStyles = css`
   .notion-callout {
     margin-top: 0.8rem;
     margin-bottom: 0.8rem;
+    padding: 0.8rem !important;
     font-size: clamp(0.7rem, 2vw, 0.9rem) !important;
+  }
+
+  /* Callout 크기 제한 */
+  .notion-callout {
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .notion-callout-text {
+    line-height: 1.4 !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   /* 반응형 토글 스타일 */
@@ -206,18 +219,82 @@ export const notionCustomStyles = css`
   .notion-link-mention-provider,
   .notion-link-mention-preview-title,
   .notion-link-mention-preview-description {
-    font-size: clamp(0.75rem, 2.2vw, 0.95rem) !important;
-    line-height: 1.5 !important;
+    font-size: clamp(0.7rem, 1.8vw, 0.8rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  /* Link mention 컴팩트 스타일 */
+  .notion-link-mention {
+    margin: 0.1rem 0 !important;
+    padding: 0.4rem 0.6rem !important;
+    min-height: auto !important;
+    height: auto !important;
+    max-height: 56px !important;
+    overflow: hidden !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background: transparent !important;
+  }
+
+  .notion-link-mention-link {
+    padding: 0 !important;
+    gap: 0.4rem !important;
+    height: auto !important;
+    min-height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    text-decoration: none !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+  }
+
+  /* 텍스트 컨테이너 */
+  .notion-link-mention-link > div:last-child {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 0.1rem !important;
   }
 
   .notion-link-mention-title,
   .notion-link-mention-preview-title {
-    font-weight: 600 !important;
+    font-weight: 500 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 400px !important;
   }
 
   .notion-link-mention-provider,
   .notion-link-mention-preview-description {
-    color: rgba(55, 53, 47, 0.65) !important;
+    color: rgba(55, 53, 47, 0.8) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: clamp(0.65rem, 1.6vw, 0.72rem) !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  /* 다크모드 지원 */
+  .dark-mode .notion-link-mention-provider,
+  .dark-mode .notion-link-mention-preview-description {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  .dark-mode .notion-link-mention {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .notion-link-mention-icon {
+    width: 14px !important;
+    height: 14px !important;
+    flex-shrink: 0 !important;
+    border-radius: 2px !important;
   }
   
   .notion-table-of-contents,
@@ -295,6 +372,72 @@ export const notionCustomStyles = css`
   .notion-text,
   .notion-page-content {
     font-family: var(--font-serif, "Noto Serif KR", "PingFang SC", "Microsoft YaHei", serif) !important;
+  }
+
+  /* 이미지 스타일 - 잘림 방지 */
+  .notion-image,
+  .notion-image img {
+    max-width: 100% !important;
+    min-height: 200px !important;
+    height: auto !important;
+    object-fit: contain !important;
+    border-radius: 8px !important;
+    margin: 0.8rem 0 !important;
+    cursor: zoom-in !important;
+  }
+
+  /* PostCard 썸네일 이미지는 제외 */
+  .thumbnail img {
+    min-height: auto !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    margin: 0 !important;
+    border-radius: 0.5rem !important;
+    cursor: pointer !important;
+  }
+
+  /* 작은 이미지 처리 */
+  @media (min-width: 768px) {
+    .notion-image img,
+    .medium-zoom-image {
+      min-width: 400px !important;
+      max-width: 80% !important;
+    }
+  }
+
+  /* 모바일에서는 전체 너비 사용 */
+  @media (max-width: 767px) {
+    .notion-image img,
+    .medium-zoom-image {
+      width: 100% !important;
+      min-height: 150px !important;
+    }
+  }
+
+  /* medium-zoom 이미지 처리 */
+  .medium-zoom-image {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    cursor: zoom-in !important;
+    transition: transform 0.2s ease !important;
+  }
+
+  .medium-zoom-image:hover {
+    transform: scale(1.02) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+
+  /* Notion 이미지 컨테이너 */
+  .notion-asset-wrapper {
+    max-width: 100% !important;
+    margin: 0.8rem 0 !important;
+  }
+
+  .notion-asset-wrapper img {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
   }
 
   /* 전역 텍스트 크기 조정 방지 */

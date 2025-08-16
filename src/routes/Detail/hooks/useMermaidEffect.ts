@@ -7,16 +7,25 @@ import { queryKey } from "src/constants/queryKey"
  *  Wait for mermaid to be defined in the dom
  *  Additionally, verify that the HTML CollectionOf has an array value.
  */
-const waitForMermaid = (interval = 100, timeout = 5000) => {
+const waitForMermaid = (interval = 100, timeout = 10000) => {
   return new Promise<Element[]>((resolve, reject) => {
     const startTime = Date.now()
     
     const checkMerMaidCode = () => {
+      // DOM이 완전히 로드될 때까지 대기
+      if (document.readyState !== 'complete') {
+        setTimeout(checkMerMaidCode, interval)
+        return
+      }
+      
       const elements1 = Array.from(document.getElementsByClassName("language-mermaid"))
       const elements2 = Array.from(document.querySelectorAll(".notion-code.language-mermaid"))
       const allElements = [...elements1, ...elements2]
       
-      if (mermaid.render !== undefined && allElements.length > 0) {
+      // Mermaid와 요소 모두 준비되었는지 확인
+      if (typeof mermaid !== 'undefined' && 
+          mermaid.render !== undefined && 
+          allElements.length > 0) {
         resolve(allElements)
       } else if (Date.now() - startTime >= timeout) {
         reject(new Error(`mermaid is not defined within the timeout period.`))
@@ -100,9 +109,25 @@ const useMermaidEffect = () => {
         await Promise.all(promises)
       })
       .catch((error) => {
-        console.warn(error)
+        console.warn('Mermaid render failed, retrying...', error)
+        // 한 번 더 시도
+        setTimeout(() => {
+          waitForMermaid(200, 5000)
+            .then(async (elements) => {
+              const promises = elements
+                .filter((element) => element.tagName === "PRE" || element.classList.contains("notion-code"))
+                .map(async (element, i) => {
+                  const svg = await mermaid
+                    .render("mermaid-retry" + i, element.textContent || "")
+                    .then((res) => res.svg)
+                  element.innerHTML = svg
+                })
+              await Promise.all(promises)
+            })
+            .catch(() => console.warn('Mermaid retry failed'))
+        }, 1000)
       })
-    }, 300) // 300ms 지연
+    }, 500) // 500ms 지연
 
     return () => {
       clearTimeout(timeoutId)

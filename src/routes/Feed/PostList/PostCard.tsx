@@ -43,10 +43,8 @@ const PostCard: React.FC<Props> = ({ data, index = 0 }) => {
                   alt={`${data.title} - ${data.summary ? data.summary.slice(0, 100) : '블로그 포스트'} 썸네일`}
                   sizes="(max-width: 768px) 80px, (max-width: 1024px) 100px, 120px"
                   priority={index < 3}
-                  css={{
-                    objectFit: "cover",
-                    transform: "scale(0.9)",
-                    borderRadius: "0.5rem"
+                  style={{
+                    objectFit: "cover"
                   }}
                 />
               </div>
@@ -213,6 +211,7 @@ const StyledWrapper = styled(Link)`
           }
 
           img {
+            object-fit: cover;
             border-radius: 0.5rem;
             transition: transform 0.3s ease;
           }
