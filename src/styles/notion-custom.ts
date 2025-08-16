@@ -440,6 +440,11 @@ export const notionCustomStyles = css`
     object-fit: contain !important;
   }
 
+  /* Mermaid 에러 SVG만 숨기기 (정상 렌더링은 유지) */
+  svg[aria-roledescription="error"] {
+    display: none !important;
+  }
+
   /* 전역 텍스트 크기 조정 방지 */
   * {
     -webkit-text-size-adjust: 100% !important;

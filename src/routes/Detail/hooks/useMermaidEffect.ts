@@ -99,17 +99,27 @@ const useMermaidEffect = () => {
                 element.innerHTML = svg
               return
             }
-            const svg = await mermaid
-              .render("mermaid" + i, element.textContent || "")
-              .then((res) => res.svg)
-            setMemoMermaid(memoMermaid.set(i, element.textContent ?? ""))
-            
-            element.innerHTML = svg
+            try {
+              const mermaidCode = element.textContent || ""
+              const svg = await mermaid
+                .render("mermaid" + i, mermaidCode)
+                .then((res) => res.svg)
+              
+              // 에러 SVG인지 확인 (에러 패턴만 정확히 체크)
+              if (svg.includes('aria-roledescription="error"') && svg.includes('Syntax error in text')) {
+                // 에러 SVG 대신 원본 코드 블록 유지
+                return
+              }
+              
+              setMemoMermaid(memoMermaid.set(i, mermaidCode))
+              element.innerHTML = svg
+            } catch (error) {
+              // 에러 발생 시 원본 코드 블록 그대로 유지
+            }
           })
         await Promise.all(promises)
       })
       .catch((error) => {
-        console.warn('Mermaid render failed, retrying...', error)
         // 한 번 더 시도
         setTimeout(() => {
           waitForMermaid(200, 5000)
@@ -117,14 +127,30 @@ const useMermaidEffect = () => {
               const promises = elements
                 .filter((element) => element.tagName === "PRE" || element.classList.contains("notion-code"))
                 .map(async (element, i) => {
-                  const svg = await mermaid
-                    .render("mermaid-retry" + i, element.textContent || "")
-                    .then((res) => res.svg)
-                  element.innerHTML = svg
+                  try {
+                    const mermaidCode = element.textContent || ""
+                    if (!mermaidCode.trim()) {
+                      return
+                    }
+                    
+                    const svg = await mermaid
+                      .render("mermaid-retry" + i, mermaidCode)
+                      .then((res) => res.svg)
+                    
+                    // 에러 SVG인지 확인 (에러 패턴만 정확히 체크)
+                    if (svg.includes('aria-roledescription="error"') && svg.includes('Syntax error in text')) {
+                      // 에러 SVG 대신 원본 코드 블록 유지
+                      return
+                    }
+                    
+                    element.innerHTML = svg
+                  } catch (retryError) {
+                    // UI에는 에러 메시지 표시하지 않고, 원본 코드 유지
+                  }
                 })
               await Promise.all(promises)
             })
-            .catch(() => console.warn('Mermaid retry failed'))
+            .catch(() => {})
         }, 1000)
       })
     }, 500) // 500ms 지연
