@@ -14,8 +14,8 @@ import "react-notion-x/src/styles.css"
 
 // used for code syntax highlighting (optional)
 // import "prismjs/themes/prism-tomorrow.css"
-import 'prism-material-themes/themes/material-default.css';
-
+// import 'prism-material-themes/themes/material-default.css';
+import "prism-themes/themes/prism-vsc-dark-plus.css";
 
 // used for rendering equations (optional)
 import "katex/dist/katex.min.css"
