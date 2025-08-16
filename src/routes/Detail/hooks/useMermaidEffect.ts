@@ -43,36 +43,36 @@ const useMermaidEffect = () => {
       theme: isDark ? "dark" : "default",
       themeVariables: {
         fontFamily: 'inherit',
-        fontSize: '11px',
+        fontSize: '12px',
         primaryTextColor: isDark ? '#ffffff' : '#333333',
         primaryColor: isDark ? '#1f2937' : '#ffffff',
         primaryBorderColor: isDark ? '#374151' : '#cccccc',
         lineColor: isDark ? '#6b7280' : '#666666',
         textColor: isDark ? '#ffffff' : '#333333',
       },
+      // 텍스트 잘림 방지를 위한 설정
       maxTextSize: 90000,
       maxEdges: 2000,
+      wrap: false,
       flowchart: {
         htmlLabels: true,
         curve: 'basis',
-        padding: 15,
-        nodeSpacing: 40,
-        rankSpacing: 40,
-        // 텍스트 길이에 맞춘 박스 크기 자동 조정
-        useMaxWidth: false,
-        fitLabels: true,
+        padding: 30, // 패딩 증가로 텍스트 잘림 방지
+        nodeSpacing: 60,
+        rankSpacing: 60,
+        useMaxWidth: false, // 최대 너비 제한 해제
       },
       sequence: {
-        diagramMarginX: 40,
-        diagramMarginY: 8,
-        boxTextMargin: 3,
-        noteMargin: 8,
-        messageMargin: 25,
+        diagramMarginX: 60, // 여백 증가
+        diagramMarginY: 20,
+        boxTextMargin: 10,
+        noteMargin: 15,
+        messageMargin: 40,
         useMaxWidth: false,
       },
       gantt: {
-        leftPadding: 60,
-        gridLineStartPadding: 25,
+        leftPadding: 100, // 왼쪽 패딩 증가
+        gridLineStartPadding: 50,
         useMaxWidth: false,
       },
     })
