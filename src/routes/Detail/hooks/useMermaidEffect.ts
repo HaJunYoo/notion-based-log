@@ -39,6 +39,16 @@ const useMermaidEffect = () => {
     mermaid.initialize({
       startOnLoad: true,
       theme: (data as "dark" | "light") === "dark" ? "dark" : "default",
+      // 텍스트 잘림 방지를 위한 설정 추가
+      themeVariables: {
+        fontFamily: 'inherit',
+        fontSize: '12px',
+      },
+      // SVG 크기 설정
+      maxTextSize: 50000,
+      maxEdges: 1000,
+      // 반응형 설정
+      responsive: true,
     })
 
     if (!document) return
