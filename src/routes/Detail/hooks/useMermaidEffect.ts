@@ -36,14 +36,20 @@ const useMermaidEffect = () => {
 
   useEffect(() => {
     if (!isFetched) return
+    const isDark = (data as "dark" | "light") === "dark"
+    
     mermaid.initialize({
       startOnLoad: true,
-      theme: (data as "dark" | "light") === "dark" ? "dark" : "default",
+      theme: isDark ? "dark" : "default",
       // 텍스트 잘림 방지를 위한 설정 추가
       themeVariables: {
         fontFamily: 'inherit',
         fontSize: '14px',
-        primaryTextColor: 'currentColor',
+        primaryTextColor: isDark ? '#ffffff' : '#333333',
+        primaryColor: isDark ? '#1f2937' : '#ffffff',
+        primaryBorderColor: isDark ? '#374151' : '#cccccc',
+        lineColor: isDark ? '#6b7280' : '#666666',
+        textColor: isDark ? '#ffffff' : '#333333',
       },
       // SVG 크기 설정 - 더 큰 값으로 설정
       maxTextSize: 90000,
