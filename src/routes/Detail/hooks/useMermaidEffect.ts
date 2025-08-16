@@ -42,13 +42,31 @@ const useMermaidEffect = () => {
       // 텍스트 잘림 방지를 위한 설정 추가
       themeVariables: {
         fontFamily: 'inherit',
-        fontSize: '12px',
+        fontSize: '14px',
+        primaryTextColor: 'currentColor',
       },
-      // SVG 크기 설정
-      maxTextSize: 50000,
-      maxEdges: 1000,
-      // 반응형 설정
-      responsive: true,
+      // SVG 크기 설정 - 더 큰 값으로 설정
+      maxTextSize: 90000,
+      maxEdges: 2000,
+      // 노드 크기 자동 조정
+      flowchart: {
+        htmlLabels: true,
+        curve: 'basis',
+        padding: 15,
+      },
+      // 시퀀스 다이어그램 설정
+      sequence: {
+        diagramMarginX: 50,
+        diagramMarginY: 10,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageMargin: 35,
+      },
+      // 간트 차트 설정
+      gantt: {
+        leftPadding: 75,
+        gridLineStartPadding: 35,
+      },
     })
 
     if (!document) return
@@ -62,6 +80,34 @@ const useMermaidEffect = () => {
               const svg = await mermaid
                 .render("mermaid" + i, memoMermaid.get(i) || "")
                 .then((res) => res.svg)
+              
+              // SVG 텍스트 잘림 방지를 위한 후처리 (캐시된 버전)
+              const tempDiv = document.createElement('div')
+              tempDiv.innerHTML = svg
+              const svgElement = tempDiv.querySelector('svg')
+              
+              if (svgElement) {
+                // viewBox 패딩 추가
+                const viewBox = svgElement.getAttribute('viewBox')
+                if (viewBox) {
+                  const [x, y, width, height] = viewBox.split(' ').map(Number)
+                  const padding = 20
+                  svgElement.setAttribute('viewBox', `${x - padding} ${y - padding} ${width + padding * 2} ${height + padding * 2}`)
+                }
+                
+                // 모든 텍스트 요소 스타일 강화
+                const textElements = svgElement.querySelectorAll('text, tspan, .label')
+                textElements.forEach(textEl => {
+                  textEl.setAttribute('style', `
+                    font-family: inherit !important;
+                    font-size: 13px !important;
+                    overflow: visible !important;
+                    white-space: nowrap !important;
+                    ${textEl.getAttribute('style') || ''}
+                  `)
+                })
+              }
+              
               element.animate(
                 [
                   { easing: "ease-in", opacity: 0 },
@@ -69,14 +115,44 @@ const useMermaidEffect = () => {
                 ],
                 { duration: 300, fill: "both" }
               )
-              element.innerHTML = svg
+              element.innerHTML = svgElement ? svgElement.outerHTML : svg
               return
             }
             const svg = await mermaid
               .render("mermaid" + i, element.textContent || "")
               .then((res) => res.svg)
             setMemoMermaid(memoMermaid.set(i, element.textContent ?? ""))
-            element.innerHTML = svg
+            
+            // SVG 텍스트 잘림 방지를 위한 후처리
+            const tempDiv = document.createElement('div')
+            tempDiv.innerHTML = svg
+            const svgElement = tempDiv.querySelector('svg')
+            
+            if (svgElement) {
+              // viewBox 패딩 추가
+              const viewBox = svgElement.getAttribute('viewBox')
+              if (viewBox) {
+                const [x, y, width, height] = viewBox.split(' ').map(Number)
+                const padding = 20
+                svgElement.setAttribute('viewBox', `${x - padding} ${y - padding} ${width + padding * 2} ${height + padding * 2}`)
+              }
+              
+              // 모든 텍스트 요소 스타일 강화
+              const textElements = svgElement.querySelectorAll('text, tspan, .label')
+              textElements.forEach(textEl => {
+                textEl.setAttribute('style', `
+                  font-family: inherit !important;
+                  font-size: 13px !important;
+                  overflow: visible !important;
+                  white-space: nowrap !important;
+                  ${textEl.getAttribute('style') || ''}
+                `)
+              })
+              
+              element.innerHTML = svgElement.outerHTML
+            } else {
+              element.innerHTML = svg
+            }
           })
         await Promise.all(promises)
       })
