@@ -27,133 +27,83 @@ const StyledWrapper = styled.div`
   &[data-type="Paper"] {
     padding: 40px 0;
   }
-  /** Reference: https://github.com/chriskempson/tomorrow-theme **/
+  /** 미니멀한 Mermaid 스타일링 **/
   code[class*="language-mermaid"],
   pre[class*="language-mermaid"] {
-    background-color: ${({ theme }) => theme.colors.gray5};
+    background: ${({ theme }) => theme.colors.gray5};
     padding: 1rem;
     border-radius: 8px;
     overflow-x: auto;
     overflow-y: visible;
     
-    /* Mermaid SVG 스타일링 */
     svg {
-      max-width: 100%;
       height: auto;
       display: block;
       margin: 0 auto;
       overflow: visible !important;
       
-      /* 텍스트 요소 스타일링 - 잘림 방지 */
+      /* 텍스트가 잘리지 않도록 */
       text {
-        font-family: inherit !important;
-        font-size: 12px !important;
+        font-family: inherit;
         overflow: visible !important;
-        white-space: nowrap !important;
       }
       
-      /* 노드 텍스트 크기 조정 - 잘림 방지 */
+      /* 노드 라벨 최소 너비 설정 */
       .nodeLabel {
-        font-size: 12px !important;
-        font-weight: 500 !important;
-        overflow: visible !important;
-        white-space: nowrap !important;
-        text-overflow: visible !important;
+        min-width: 120px !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        text-align: center !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 4px 8px !important;
+        box-sizing: border-box !important;
       }
       
+      /* 원형 노드 특별 처리 */
+      .node circle + g .nodeLabel,
+      .node circle ~ g .nodeLabel {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: 80% !important;
+      }
+      
+      /* 사각형 노드 라벨 컨테이너 */
+      .basic.label-container {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      /* 엣지 라벨 최소 너비 설정 */
       .edgeLabel {
-        font-size: 11px !important;
-        font-weight: 500 !important;
-        overflow: visible !important;
+        min-width: 60px !important;
         white-space: nowrap !important;
       }
       
-      /* 제목 텍스트 크기 */
-      .titleText {
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        overflow: visible !important;
-      }
-      
-      /* 플로우차트 노드 스타일링 */
-      .flowchart-label {
-        font-size: 12px !important;
-        overflow: visible !important;
-        white-space: nowrap !important;
-      }
-      
-      /* foreignObject 내부 요소들 잘림 방지 */
       foreignObject {
         overflow: visible !important;
+        min-width: 100px !important;
         
         div {
           overflow: visible !important;
-          white-space: nowrap !important;
-          text-overflow: visible !important;
-        }
-        
-        span {
-          overflow: visible !important;
-          white-space: nowrap !important;
-          text-overflow: visible !important;
-        }
-      }
-      
-      /* 간트 차트 텍스트 */
-      .taskText {
-        font-size: 11px !important;
-      }
-      
-      /* 시퀀스 다이어그램 */
-      .messageText {
-        font-size: 12px !important;
-      }
-      
-      /* 클러스터 라벨 */
-      .cluster-label {
-        font-size: 12px !important;
-      }
-    }
-  }
-  
-  /* 모바일에서 Mermaid 다이어그램 최적화 */
-  @media (max-width: 768px) {
-    code[class*="language-mermaid"],
-    pre[class*="language-mermaid"] {
-      padding: 0.5rem;
-      
-      svg {
-        /* 모바일에서는 약간 작은 폰트 크기 사용 */
-        text {
-          font-size: 10px !important;
-        }
-        
-        .nodeLabel {
-          font-size: 10px !important;
-        }
-        
-        .edgeLabel {
-          font-size: 9px !important;
-        }
-        
-        .titleText {
-          font-size: 12px !important;
-        }
-        
-        .flowchart-label {
-          font-size: 10px !important;
-        }
-        
-        .taskText {
-          font-size: 9px !important;
-        }
-        
-        .messageText {
-          font-size: 10px !important;
-        }
-        
-        .cluster-label {
-          font-size: 10px !important;
+          white-space: normal !important;
+          word-wrap: break-word !important;
+          word-break: break-word !important;
+          text-align: center !important;
+          line-height: 1.2 !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          height: 100% !important;
+          padding: 4px 8px !important;
         }
       }
     }
