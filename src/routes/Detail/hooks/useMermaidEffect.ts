@@ -50,6 +50,12 @@ const useMermaidEffect = () => {
         primaryBorderColor: isDark ? '#374151' : '#cccccc',
         lineColor: isDark ? '#6b7280' : '#666666',
         textColor: isDark ? '#ffffff' : '#333333',
+        // 노드 크기 증가 설정
+        nodeBorder: '2px',
+        nodeTextSize: '16px',
+        // 다이어그램 여백 증가
+        primaryBorderWidth: '2px',
+        primaryBorderRadius: '8px',
       },
       // SVG 크기 설정 - 더 큰 값으로 설정
       maxTextSize: 90000,
@@ -58,7 +64,10 @@ const useMermaidEffect = () => {
       flowchart: {
         htmlLabels: true,
         curve: 'basis',
-        padding: 15,
+        padding: 25,
+        nodeSpacing: 60,
+        rankSpacing: 80,
+        defaultRenderer: 'elk',
       },
       // 시퀀스 다이어그램 설정
       sequence: {

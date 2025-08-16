@@ -62,6 +62,33 @@ const StyledWrapper = styled.div`
         font-size: 14px !important;
         font-weight: 600 !important;
       }
+      
+      /* 노드(박스) 크기 증가 */
+      .node rect,
+      .node circle,
+      .node ellipse,
+      .node polygon {
+        stroke-width: 2px !important;
+      }
+      
+      /* 노드 내부 패딩 증가 */
+      .nodeLabel {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+      }
+      
+      /* 플로우차트 노드 스타일링 */
+      .flowchart-label {
+        font-size: 13px !important;
+        padding: 6px 10px !important;
+      }
+      
+      /* 다이어그램 전체 여백 증가 */
+      g.root {
+        transform: scale(1.1);
+        transform-origin: center;
+      }
     }
   }
   
