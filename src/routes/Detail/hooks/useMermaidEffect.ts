@@ -93,24 +93,49 @@ const useMermaidEffect = () => {
               const svgElement = tempDiv.querySelector('svg')
               
               if (svgElement) {
-                // viewBox 패딩 추가
+                // viewBox 패딩을 더 크게 설정
                 const viewBox = svgElement.getAttribute('viewBox')
                 if (viewBox) {
                   const [x, y, width, height] = viewBox.split(' ').map(Number)
-                  const padding = 20
+                  const padding = 50 // 20에서 50으로 증가
                   svgElement.setAttribute('viewBox', `${x - padding} ${y - padding} ${width + padding * 2} ${height + padding * 2}`)
                 }
                 
-                // 모든 텍스트 요소 스타일 강화
-                const textElements = svgElement.querySelectorAll('text, tspan, .label')
-                textElements.forEach(textEl => {
-                  textEl.setAttribute('style', `
-                    font-family: inherit !important;
-                    font-size: 13px !important;
-                    overflow: visible !important;
-                    white-space: nowrap !important;
-                    ${textEl.getAttribute('style') || ''}
-                  `)
+                // SVG 자체 크기 속성 제거하여 반응형으로 만들기
+                svgElement.removeAttribute('width')
+                svgElement.removeAttribute('height')
+                svgElement.setAttribute('width', '100%')
+                svgElement.setAttribute('height', 'auto')
+                
+                // 모든 텍스트 요소 강화 (더 많은 선택자 포함)
+                const textSelectors = [
+                  'text', 'tspan', '.label', '.nodeLabel', '.edgeLabel', 
+                  'foreignObject', 'div', 'span', '.cluster-label',
+                  '.flowchart-label', '.titleText'
+                ]
+                
+                textSelectors.forEach(selector => {
+                  const elements = svgElement.querySelectorAll(selector)
+                  elements.forEach(textEl => {
+                    // 기존 스타일 보존하면서 오버플로우 관련 스타일 추가
+                    const currentStyle = textEl.getAttribute('style') || ''
+                    textEl.setAttribute('style', `
+                      ${currentStyle}
+                      overflow: visible !important;
+                      text-overflow: visible !important;
+                      white-space: nowrap !important;
+                      max-width: none !important;
+                      width: auto !important;
+                    `)
+                    
+                    // foreignObject의 경우 크기 제한 제거
+                    if (textEl.tagName === 'foreignObject') {
+                      textEl.removeAttribute('width')
+                      textEl.removeAttribute('height')
+                      textEl.setAttribute('width', 'auto')
+                      textEl.setAttribute('height', 'auto')
+                    }
+                  })
                 })
               }
               
@@ -135,24 +160,49 @@ const useMermaidEffect = () => {
             const svgElement = tempDiv.querySelector('svg')
             
             if (svgElement) {
-              // viewBox 패딩 추가
+              // viewBox 패딩을 더 크게 설정
               const viewBox = svgElement.getAttribute('viewBox')
               if (viewBox) {
                 const [x, y, width, height] = viewBox.split(' ').map(Number)
-                const padding = 20
+                const padding = 50 // 20에서 50으로 증가
                 svgElement.setAttribute('viewBox', `${x - padding} ${y - padding} ${width + padding * 2} ${height + padding * 2}`)
               }
               
-              // 모든 텍스트 요소 스타일 강화
-              const textElements = svgElement.querySelectorAll('text, tspan, .label')
-              textElements.forEach(textEl => {
-                textEl.setAttribute('style', `
-                  font-family: inherit !important;
-                  font-size: 13px !important;
-                  overflow: visible !important;
-                  white-space: nowrap !important;
-                  ${textEl.getAttribute('style') || ''}
-                `)
+              // SVG 자체 크기 속성 제거하여 반응형으로 만들기
+              svgElement.removeAttribute('width')
+              svgElement.removeAttribute('height')
+              svgElement.setAttribute('width', '100%')
+              svgElement.setAttribute('height', 'auto')
+              
+              // 모든 텍스트 요소 강화 (더 많은 선택자 포함)
+              const textSelectors = [
+                'text', 'tspan', '.label', '.nodeLabel', '.edgeLabel', 
+                'foreignObject', 'div', 'span', '.cluster-label',
+                '.flowchart-label', '.titleText'
+              ]
+              
+              textSelectors.forEach(selector => {
+                const elements = svgElement.querySelectorAll(selector)
+                elements.forEach(textEl => {
+                  // 기존 스타일 보존하면서 오버플로우 관련 스타일 추가
+                  const currentStyle = textEl.getAttribute('style') || ''
+                  textEl.setAttribute('style', `
+                    ${currentStyle}
+                    overflow: visible !important;
+                    text-overflow: visible !important;
+                    white-space: nowrap !important;
+                    max-width: none !important;
+                    width: auto !important;
+                  `)
+                  
+                  // foreignObject의 경우 크기 제한 제거
+                  if (textEl.tagName === 'foreignObject') {
+                    textEl.removeAttribute('width')
+                    textEl.removeAttribute('height')
+                    textEl.setAttribute('width', 'auto')
+                    textEl.setAttribute('height', 'auto')
+                  }
+                })
               })
               
               element.innerHTML = svgElement.outerHTML
