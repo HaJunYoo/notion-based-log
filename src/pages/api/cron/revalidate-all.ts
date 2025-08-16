@@ -24,15 +24,32 @@ export default async function handler(
   const authHeader = req.headers.authorization
   const providedSecret = secret || authHeader?.replace('Bearer ', '')
 
-  // Verify using existing TOKEN_FOR_REVALIDATE
-  if (providedSecret !== process.env.TOKEN_FOR_REVALIDATE) {
-    console.error('❌ Unauthorized cron attempt:', { 
+  // Check if this is a Vercel cron job
+  const isVercelCron = req.headers['user-agent']?.includes('vercel-cron')
+
+  // Verify authentication
+  if (!isVercelCron && providedSecret !== process.env.TOKEN_FOR_REVALIDATE) {
+    console.error('❌ Unauthorized attempt:', { 
       hasSecret: !!providedSecret,
       hasEnvToken: !!process.env.TOKEN_FOR_REVALIDATE,
       providedSecretLength: providedSecret?.toString().length || 0,
+      isVercelCron,
       timestamp: new Date().toISOString()
     })
     return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  // Log successful authentication
+  if (isVercelCron) {
+    console.log('✅ Vercel cron job authenticated successfully:', {
+      userAgent: req.headers['user-agent'],
+      timestamp: new Date().toISOString()
+    })
+  } else {
+    console.log('✅ Manual request authenticated successfully:', {
+      hasSecret: !!providedSecret,
+      timestamp: new Date().toISOString()
+    })
   }
 
   // Only allow POST requests from Vercel cron (but also support GET for manual testing)
