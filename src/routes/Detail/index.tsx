@@ -43,93 +43,122 @@ const StyledWrapper = styled.div`
       display: block;
       margin: 0 auto;
       
-      /* 텍스트 요소 스타일링 - 반응형 폰트 크기 */
+      /* 텍스트 요소 스타일링 - 작은 반응형 폰트 크기 */
       text {
         font-family: inherit !important;
-        font-size: clamp(12px, 2.5vw, 16px) !important;
+        font-size: clamp(10px, 1.8vw, 12px) !important;
         fill: currentColor !important;
         text-anchor: middle !important; /* 텍스트 중앙 정렬 */
         dominant-baseline: middle !important; /* 수직 중앙 정렬 */
       }
       
-      /* 노드 텍스트 크기 조정 - 반응형 */
+      /* 노드 텍스트 크기 조정 - 작은 반응형 */
       .nodeLabel {
-        font-size: clamp(11px, 2.2vw, 14px) !important;
+        font-size: clamp(9px, 1.6vw, 11px) !important;
         font-weight: 500 !important;
-        padding: 8px 12px !important;
+        padding: 4px 8px !important;
         text-align: center !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+        width: auto !important;
+        min-width: fit-content !important;
       }
       
       .edgeLabel {
-        font-size: clamp(10px, 2vw, 12px) !important;
+        font-size: clamp(8px, 1.4vw, 10px) !important;
         font-weight: 500 !important;
         text-align: center !important;
       }
       
-      /* 제목 텍스트 크기 - 반응형 */
+      /* 제목 텍스트 크기 - 작은 반응형 */
       .titleText {
-        font-size: clamp(14px, 3vw, 18px) !important;
+        font-size: clamp(11px, 2.2vw, 14px) !important;
         font-weight: 600 !important;
         text-align: center !important;
       }
       
-      /* 플로우차트 노드 스타일링 - 반응형 */
+      /* 플로우차트 노드 스타일링 - 작은 반응형 */
       .flowchart-label {
-        font-size: clamp(11px, 2.2vw, 14px) !important;
-        padding: 6px 10px !important;
+        font-size: clamp(9px, 1.6vw, 11px) !important;
+        padding: 4px 8px !important;
         text-align: center !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+        white-space: nowrap !important;
+        width: auto !important;
+        min-width: fit-content !important;
       }
       
-      /* foreignObject 내부 요소들 중앙 정렬 */
+      /* 노드 박스 크기를 텍스트에 맞춰 자동 조정 */
+      .node rect,
+      .node circle,
+      .node ellipse,
+      .node polygon {
+        width: auto !important;
+        height: auto !important;
+        min-width: fit-content !important;
+        min-height: fit-content !important;
+      }
+      
+      /* foreignObject 내부 요소들 - 텍스트 길이에 맞춘 크기 */
       foreignObject {
         text-align: center !important;
+        width: auto !important;
+        height: auto !important;
         
         div {
-          display: flex !important;
+          display: inline-flex !important;
           align-items: center !important;
           justify-content: center !important;
           text-align: center !important;
-          width: 100% !important;
-          height: 100% !important;
+          width: auto !important;
+          height: auto !important;
+          min-width: fit-content !important;
+          white-space: nowrap !important;
+          padding: 4px 8px !important;
         }
         
         span {
           text-align: center !important;
-          display: block !important;
-          width: 100% !important;
+          display: inline-block !important;
+          width: auto !important;
+          white-space: nowrap !important;
+          font-size: clamp(9px, 1.6vw, 11px) !important;
         }
       }
       
-      /* 간트 차트 텍스트 - 반응형 */
+      /* 간트 차트 텍스트 - 작은 반응형 */
       .taskText {
-        font-size: clamp(10px, 2vw, 13px) !important;
+        font-size: clamp(8px, 1.4vw, 10px) !important;
         text-align: center !important;
       }
       
-      /* 시퀀스 다이어그램 - 반응형 */
+      /* 시퀀스 다이어그램 - 작은 반응형 */
       .messageText {
-        font-size: clamp(11px, 2.2vw, 14px) !important;
+        font-size: clamp(9px, 1.6vw, 11px) !important;
         text-align: center !important;
       }
       
-      /* 라벨 컨테이너 중앙 정렬 */
+      /* 라벨 컨테이너 - 텍스트 길이에 맞춘 크기 */
       .label-container {
         text-align: center !important;
-        display: flex !important;
+        display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
+        width: auto !important;
+        height: auto !important;
+        min-width: fit-content !important;
+        min-height: fit-content !important;
       }
       
-      /* 클러스터 라벨 중앙 정렬 */
+      /* 클러스터 라벨 - 작은 반응형 */
       .cluster-label {
         text-align: center !important;
-        font-size: clamp(11px, 2.2vw, 14px) !important;
+        font-size: clamp(9px, 1.6vw, 11px) !important;
       }
     }
   }
@@ -141,39 +170,49 @@ const StyledWrapper = styled.div`
       padding: 0.5rem;
       
       svg {
-        /* 모바일에서는 clamp의 최소값을 더 작게 설정 */
+        /* 모바일에서는 더 작은 폰트 크기 사용 */
         text {
-          font-size: clamp(10px, 3vw, 14px) !important;
+          font-size: clamp(8px, 2.2vw, 10px) !important;
         }
         
         .nodeLabel {
-          font-size: clamp(9px, 2.8vw, 12px) !important;
-          padding: 6px 8px !important;
+          font-size: clamp(7px, 2vw, 9px) !important;
+          padding: 3px 6px !important;
         }
         
         .edgeLabel {
-          font-size: clamp(8px, 2.5vw, 10px) !important;
+          font-size: clamp(6px, 1.8vw, 8px) !important;
         }
         
         .titleText {
-          font-size: clamp(12px, 3.5vw, 16px) !important;
+          font-size: clamp(9px, 2.5vw, 12px) !important;
         }
         
         .flowchart-label {
-          font-size: clamp(9px, 2.8vw, 12px) !important;
-          padding: 4px 6px !important;
+          font-size: clamp(7px, 2vw, 9px) !important;
+          padding: 3px 5px !important;
         }
         
         .taskText {
-          font-size: clamp(8px, 2.5vw, 11px) !important;
+          font-size: clamp(6px, 1.8vw, 8px) !important;
         }
         
         .messageText {
-          font-size: clamp(9px, 2.8vw, 12px) !important;
+          font-size: clamp(7px, 2vw, 9px) !important;
         }
         
         .cluster-label {
-          font-size: clamp(9px, 2.8vw, 12px) !important;
+          font-size: clamp(7px, 2vw, 9px) !important;
+        }
+        
+        foreignObject {
+          div {
+            padding: 3px 6px !important;
+          }
+          
+          span {
+            font-size: clamp(7px, 2vw, 9px) !important;
+          }
         }
       }
     }
