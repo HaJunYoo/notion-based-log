@@ -56,6 +56,12 @@ const useMermaidEffect = () => {
         // 다이어그램 여백 증가
         primaryBorderWidth: '2px',
         primaryBorderRadius: '8px',
+        // 노드 박스 크기 증가
+        nodeWidth: '150px',
+        nodeHeight: '60px',
+        nodePadding: '15px',
+        // 플로우차트 노드 여백
+        flowchartNodePadding: '20px',
       },
       // SVG 크기 설정 - 더 큰 값으로 설정
       maxTextSize: 90000,
@@ -64,10 +70,13 @@ const useMermaidEffect = () => {
       flowchart: {
         htmlLabels: true,
         curve: 'basis',
-        padding: 25,
-        nodeSpacing: 60,
-        rankSpacing: 80,
+        padding: 35,
+        nodeSpacing: 80,
+        rankSpacing: 100,
         defaultRenderer: 'elk',
+        // 노드 내부 여백 증가
+        nodePadding: 20,
+        labelOffset: 15,
       },
       // 시퀀스 다이어그램 설정
       sequence: {
@@ -211,6 +220,49 @@ const useMermaidEffect = () => {
                     textEl.setAttribute('width', 'auto')
                     textEl.setAttribute('height', 'auto')
                   }
+                })
+              })
+              
+              // 노드 박스 크기 증가 처리
+              const nodeShapes = svgElement.querySelectorAll('.node rect, .node circle, .node ellipse, .node polygon')
+              nodeShapes.forEach(shape => {
+                // 기존 크기 가져오기
+                const currentWidth = parseFloat(shape.getAttribute('width') || '100')
+                const currentHeight = parseFloat(shape.getAttribute('height') || '50')
+                
+                // 최소 크기 보장 및 크기 증가
+                const newWidth = Math.max(currentWidth * 1.3, 120)
+                const newHeight = Math.max(currentHeight * 1.2, 50)
+                
+                if (shape.tagName === 'rect') {
+                  shape.setAttribute('width', newWidth.toString())
+                  shape.setAttribute('height', newHeight.toString())
+                } else if (shape.tagName === 'circle') {
+                  const radius = Math.max(newWidth, newHeight) / 2
+                  shape.setAttribute('r', radius.toString())
+                } else if (shape.tagName === 'ellipse') {
+                  shape.setAttribute('rx', (newWidth / 2).toString())
+                  shape.setAttribute('ry', (newHeight / 2).toString())
+                }
+              })
+              
+              // 노드 라벨 컨테이너 크기 조정
+              const labelContainers = svgElement.querySelectorAll('.label-container, .nodeLabel')
+              labelContainers.forEach(container => {
+                const currentWidth = parseFloat(container.getAttribute('width') || '80')
+                const currentHeight = parseFloat(container.getAttribute('height') || '30')
+                
+                const newWidth = Math.max(currentWidth * 1.2, 100)
+                const newHeight = Math.max(currentHeight * 1.2, 40)
+                
+                container.setAttribute('width', newWidth.toString())
+                container.setAttribute('height', newHeight.toString())
+                container.setAttribute('style', `
+                  ${container.getAttribute('style') || ''}
+                  min-width: ${newWidth}px !important;
+                  min-height: ${newHeight}px !important;
+                  padding: 8px 16px !important;
+                `)
                 })
               })
               

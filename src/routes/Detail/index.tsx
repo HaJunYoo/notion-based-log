@@ -69,19 +69,48 @@ const StyledWrapper = styled.div`
       .node ellipse,
       .node polygon {
         stroke-width: 2px !important;
+        /* 최소 크기 설정 */
+        min-width: 120px !important;
+        min-height: 50px !important;
       }
       
-      /* 노드 내부 패딩 증가 */
+      /* 노드 내부 패딩 대폭 증가 */
       .nodeLabel {
-        padding: 8px 12px !important;
+        padding: 12px 20px !important;
         font-size: 13px !important;
         font-weight: 500 !important;
+        min-width: 80px !important;
+        min-height: 30px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+      }
+      
+      /* foreignObject 내부 div 크기 조정 */
+      .nodeLabel foreignObject,
+      .nodeLabel foreignObject > div {
+        min-width: 100px !important;
+        min-height: 40px !important;
+        padding: 8px 16px !important;
       }
       
       /* 플로우차트 노드 스타일링 */
       .flowchart-label {
         font-size: 13px !important;
-        padding: 6px 10px !important;
+        padding: 10px 16px !important;
+        min-width: 100px !important;
+        min-height: 40px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      
+      /* 노드 텍스트 컨테이너 크기 조정 */
+      .label-container {
+        min-width: 120px !important;
+        min-height: 50px !important;
+        padding: 8px 16px !important;
       }
       
       /* 다이어그램 전체 여백 증가 */
