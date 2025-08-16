@@ -9,6 +9,16 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // 환경변수 디버깅 추가
+  console.log('🔍 Environment debug:', {
+    hasToken: !!process.env.TOKEN_FOR_REVALIDATE,
+    tokenLength: process.env.TOKEN_FOR_REVALIDATE?.length || 0,
+    nodeEnv: process.env.NODE_ENV,
+    vercelEnv: process.env.VERCEL_ENV,
+    userAgent: req.headers['user-agent'],
+    timestamp: new Date().toISOString()
+  })
+
   // Support both query parameter and Authorization header
   const { secret } = req.query
   const authHeader = req.headers.authorization
@@ -18,6 +28,8 @@ export default async function handler(
   if (providedSecret !== process.env.TOKEN_FOR_REVALIDATE) {
     console.error('❌ Unauthorized cron attempt:', { 
       hasSecret: !!providedSecret,
+      hasEnvToken: !!process.env.TOKEN_FOR_REVALIDATE,
+      providedSecretLength: providedSecret?.toString().length || 0,
       timestamp: new Date().toISOString()
     })
     return res.status(401).json({ error: 'Unauthorized' })
