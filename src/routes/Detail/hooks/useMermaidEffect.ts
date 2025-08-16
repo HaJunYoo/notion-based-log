@@ -1,22 +1,32 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import mermaid from "mermaid"
 import { useEffect, useState } from "react"
 import { queryKey } from "src/constants/queryKey"
-import useScheme from "src/hooks/useScheme"
 
 /**
  *  Wait for mermaid to be defined in the dom
  *  Additionally, verify that the HTML CollectionOf has an array value.
  */
-const waitForMermaid = (interval = 100, timeout = 5000) => {
-  return new Promise<HTMLCollectionOf<Element>>((resolve, reject) => {
+const waitForMermaid = (interval = 100, timeout = 10000) => {
+  return new Promise<Element[]>((resolve, reject) => {
     const startTime = Date.now()
-    const elements: HTMLCollectionOf<Element> =
-      document.getElementsByClassName("language-mermaid")
-
+    
     const checkMerMaidCode = () => {
-      if (mermaid.render !== undefined && elements.length > 0) {
-        resolve(elements)
+      // DOM이 완전히 로드될 때까지 대기
+      if (document.readyState !== 'complete') {
+        setTimeout(checkMerMaidCode, interval)
+        return
+      }
+      
+      const elements1 = Array.from(document.getElementsByClassName("language-mermaid"))
+      const elements2 = Array.from(document.querySelectorAll(".notion-code.language-mermaid"))
+      const allElements = [...elements1, ...elements2]
+      
+      // Mermaid와 요소 모두 준비되었는지 확인
+      if (typeof mermaid !== 'undefined' && 
+          mermaid.render !== undefined && 
+          allElements.length > 0) {
+        resolve(allElements)
       } else if (Date.now() - startTime >= timeout) {
         reject(new Error(`mermaid is not defined within the timeout period.`))
       } else {
@@ -38,42 +48,32 @@ const useMermaidEffect = () => {
     if (!isFetched) return
     const isDark = (data as "dark" | "light") === "dark"
     
-    mermaid.initialize({
+    // DOM이 완전히 준비될 때까지 대기
+    const timeoutId = setTimeout(() => {
+      mermaid.initialize({
       startOnLoad: true,
       theme: isDark ? "dark" : "default",
       themeVariables: {
         fontFamily: 'inherit',
-        fontSize: '12px',
-        primaryTextColor: isDark ? '#ffffff' : '#333333',
-        primaryColor: isDark ? '#1f2937' : '#ffffff',
-        primaryBorderColor: isDark ? '#374151' : '#cccccc',
-        lineColor: isDark ? '#6b7280' : '#666666',
-        textColor: isDark ? '#ffffff' : '#333333',
+        fontSize: '10px',
       },
-      // 텍스트 잘림 방지를 위한 설정
       maxTextSize: 90000,
-      maxEdges: 2000,
-      wrap: false,
       flowchart: {
+        useMaxWidth: false,
         htmlLabels: true,
-        curve: 'basis',
-        padding: 30, // 패딩 증가로 텍스트 잘림 방지
+        padding: 30,
         nodeSpacing: 60,
-        rankSpacing: 60,
-        useMaxWidth: false, // 최대 너비 제한 해제
+        rankSpacing: 70,
+        wrappingWidth: 400,
       },
       sequence: {
-        diagramMarginX: 60, // 여백 증가
-        diagramMarginY: 20,
-        boxTextMargin: 10,
-        noteMargin: 15,
-        messageMargin: 40,
         useMaxWidth: false,
+        diagramMarginX: 20,
+        diagramMarginY: 20,
       },
       gantt: {
-        leftPadding: 100, // 왼쪽 패딩 증가
-        gridLineStartPadding: 50,
         useMaxWidth: false,
+        leftPadding: 100,
       },
     })
 
@@ -81,8 +81,8 @@ const useMermaidEffect = () => {
 
     waitForMermaid()
       .then(async (elements) => {
-        const promises = Array.from(elements)
-          .filter((elements) => elements.tagName === "PRE")
+        const promises = elements
+          .filter((element) => element.tagName === "PRE" || element.classList.contains("notion-code"))
           .map(async (element, i) => {
             if (memoMermaid.get(i) !== undefined) {
               const svg = await mermaid
@@ -99,19 +99,66 @@ const useMermaidEffect = () => {
                 element.innerHTML = svg
               return
             }
-            const svg = await mermaid
-              .render("mermaid" + i, element.textContent || "")
-              .then((res) => res.svg)
-            setMemoMermaid(memoMermaid.set(i, element.textContent ?? ""))
-            
-            element.innerHTML = svg
+            try {
+              const mermaidCode = element.textContent || ""
+              const svg = await mermaid
+                .render("mermaid" + i, mermaidCode)
+                .then((res) => res.svg)
+              
+              // 에러 SVG인지 확인 (에러 패턴만 정확히 체크)
+              if (svg.includes('aria-roledescription="error"') && svg.includes('Syntax error in text')) {
+                // 에러 SVG 대신 원본 코드 블록 유지
+                return
+              }
+              
+              setMemoMermaid(memoMermaid.set(i, mermaidCode))
+              element.innerHTML = svg
+            } catch (error) {
+              // 에러 발생 시 원본 코드 블록 그대로 유지
+            }
           })
         await Promise.all(promises)
       })
       .catch((error) => {
-        console.warn(error)
+        // 한 번 더 시도
+        setTimeout(() => {
+          waitForMermaid(200, 5000)
+            .then(async (elements) => {
+              const promises = elements
+                .filter((element) => element.tagName === "PRE" || element.classList.contains("notion-code"))
+                .map(async (element, i) => {
+                  try {
+                    const mermaidCode = element.textContent || ""
+                    if (!mermaidCode.trim()) {
+                      return
+                    }
+                    
+                    const svg = await mermaid
+                      .render("mermaid-retry" + i, mermaidCode)
+                      .then((res) => res.svg)
+                    
+                    // 에러 SVG인지 확인 (에러 패턴만 정확히 체크)
+                    if (svg.includes('aria-roledescription="error"') && svg.includes('Syntax error in text')) {
+                      // 에러 SVG 대신 원본 코드 블록 유지
+                      return
+                    }
+                    
+                    element.innerHTML = svg
+                  } catch (retryError) {
+                    // UI에는 에러 메시지 표시하지 않고, 원본 코드 유지
+                  }
+                })
+              await Promise.all(promises)
+            })
+            .catch(() => {})
+        }, 1000)
       })
-  }, [data, isFetched])
+    }, 500) // 500ms 지연
+
+    return () => {
+      clearTimeout(timeoutId)
+    }
+  }, [data, isFetched, memoMermaid])
 
   return
 }
