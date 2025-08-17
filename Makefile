@@ -1,4 +1,4 @@
-.PHONY: setup dev run local revalidate-all revalidate-post check-env static
+.PHONY: setup dev run local build static install generate-rss
 
 # Load environment variables from .env.local if it exists
 ifneq (,$(wildcard .env.local))
@@ -20,22 +20,36 @@ ifndef TOKEN_FOR_REVALIDATE
 	$(error TOKEN_FOR_REVALIDATE is not set. Please set it in .env.local or provide it as an argument)
 endif
 
-setup: check-env
-	docker build . -t notion-based-log ; \
-	docker run -it --rm -v $(PWD):/app notion-based-log /bin/bash -c "yarn install" ; \
-	echo NOTION_PAGE_ID=$(NOTION_PAGE_ID) > .env.local
+# Development commands
+install:
+	npm install
 
 dev:
-	docker run -it --rm -v $(PWD):/app -p 8001:3000 notion-based-log /bin/bash -c "yarn run dev"
-
-run:
-	docker run -it --rm -v $(PWD):/app notion-based-log /bin/bash
+	npm run dev
 
 local:
-	yarn dev
+	npm run dev
+
+build:
+	npm run build
 
 static:
 	npx serve out
+
+generate-rss:
+	npm run generate-rss
+
+# Docker commands (legacy)
+setup: check-env
+	docker build . -t notion-based-log ; \
+	docker run -it --rm -v $(PWD):/app notion-based-log /bin/bash -c "npm install" ; \
+	echo NOTION_PAGE_ID=$(NOTION_PAGE_ID) > .env.local
+
+docker-dev:
+	docker run -it --rm -v $(PWD):/app -p 8001:3000 notion-based-log /bin/bash -c "npm run dev"
+
+docker-run:
+	docker run -it --rm -v $(PWD):/app notion-based-log /bin/bash
 
 # Manual revalidation commands
 revalidate-all: check-env
