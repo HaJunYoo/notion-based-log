@@ -24,16 +24,20 @@ export default async function handler(
   const authHeader = req.headers.authorization
   const providedSecret = secret || authHeader?.replace('Bearer ', '')
 
-  // Check if this is a Vercel cron job
-  const isVercelCron = req.headers['user-agent']?.includes('vercel-cron')
+  // Check if this is a Vercel cron job (multiple possible user-agents)
+  const userAgent = req.headers['user-agent'] || ''
+  const isVercelCron = userAgent.includes('vercel-cron') || 
+                       userAgent.includes('vercel') ||
+                       req.headers['x-vercel-cron'] === '1'
 
   // Verify authentication
-  if (!isVercelCron && providedSecret !== process.env.TOKEN_FOR_REVALIDATE) {
+  if (!isVercelCron && (!providedSecret || providedSecret !== process.env.TOKEN_FOR_REVALIDATE)) {
     console.error('❌ Unauthorized attempt:', { 
       hasSecret: !!providedSecret,
       hasEnvToken: !!process.env.TOKEN_FOR_REVALIDATE,
       providedSecretLength: providedSecret?.toString().length || 0,
       isVercelCron,
+      userAgent: req.headers['user-agent'],
       timestamp: new Date().toISOString()
     })
     return res.status(401).json({ error: 'Unauthorized' })
@@ -89,33 +93,59 @@ export default async function handler(
       errors: []
     }
 
-    // Revalidate main pages
+    // Revalidate main pages using Promise.all (parallel processing like /api/revalidate)
     console.log('🏠 Revalidating main pages...')
-    for (const page of mainPages) {
-      try {
-        await res.revalidate(page)
+    try {
+      const mainPagePromises = mainPages.map(page => res.revalidate(page))
+      await Promise.all(mainPagePromises)
+      
+      // Mark all as successful
+      mainPages.forEach(page => {
         results.mainPages.push({ page, success: true })
         console.log(`✅ Main page revalidated: ${page}`)
-      } catch (error: any) {
-        const errorMsg = error.message || 'Unknown error'
-        results.mainPages.push({ page, success: false, error: errorMsg })
-        results.errors.push(`Main page ${page}: ${errorMsg}`)
-        console.error(`❌ Failed to revalidate main page ${page}:`, error)
+      })
+    } catch (error: any) {
+      // If Promise.all fails, try individual revalidation
+      console.log('⚠️ Parallel revalidation failed, trying sequential...')
+      for (const page of mainPages) {
+        try {
+          await res.revalidate(page)
+          results.mainPages.push({ page, success: true })
+          console.log(`✅ Main page revalidated: ${page}`)
+        } catch (error: any) {
+          const errorMsg = error.message || 'Unknown error'
+          results.mainPages.push({ page, success: false, error: errorMsg })
+          results.errors.push(`Main page ${page}: ${errorMsg}`)
+          console.error(`❌ Failed to revalidate main page ${page}:`, error)
+        }
       }
     }
 
-    // Revalidate all post pages
+    // Revalidate all post pages using Promise.all (parallel processing like /api/revalidate)
     console.log('📄 Revalidating post pages...')
-    for (const post of posts) {
-      try {
-        await res.revalidate(`/${post.slug}`)
+    try {
+      const postPromises = posts.map(post => res.revalidate(`/${post.slug}`))
+      await Promise.all(postPromises)
+      
+      // Mark all as successful
+      posts.forEach(post => {
         results.posts.push({ slug: post.slug, success: true })
         console.log(`✅ Post revalidated: /${post.slug}`)
-      } catch (error: any) {
-        const errorMsg = error.message || 'Unknown error'
-        results.posts.push({ slug: post.slug, success: false, error: errorMsg })
-        results.errors.push(`Post ${post.slug}: ${errorMsg}`)
-        console.error(`❌ Failed to revalidate post /${post.slug}:`, error)
+      })
+    } catch (error: any) {
+      // If Promise.all fails, try individual revalidation
+      console.log('⚠️ Parallel post revalidation failed, trying sequential...')
+      for (const post of posts) {
+        try {
+          await res.revalidate(`/${post.slug}`)
+          results.posts.push({ slug: post.slug, success: true })
+          console.log(`✅ Post revalidated: /${post.slug}`)
+        } catch (error: any) {
+          const errorMsg = error.message || 'Unknown error'
+          results.posts.push({ slug: post.slug, success: false, error: errorMsg })
+          results.errors.push(`Post ${post.slug}: ${errorMsg}`)
+          console.error(`❌ Failed to revalidate post /${post.slug}:`, error)
+        }
       }
     }
 
