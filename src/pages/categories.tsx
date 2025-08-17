@@ -26,7 +26,7 @@ const CategoriesPage: NextPageWithLayout = () => {
     title: `Categories - ${CONFIG.blog.title}`,
     description: "Browse posts by category",
     type: "website",
-    url: `${CONFIG.link}/categories`,
+    url: `${CONFIG.link}/categories/`,
     image: CONFIG.ogImageGenerateURL
       ? `${CONFIG.ogImageGenerateURL}/${encodeURIComponent(`Categories - ${CONFIG.blog.title}`)}.png`
       : undefined,

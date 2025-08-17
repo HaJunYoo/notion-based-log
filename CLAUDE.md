@@ -9,8 +9,8 @@ This is **notion-based-log**, a Next.js static blog that uses Notion as a Conten
 ## Development Commands
 
 - `yarn dev` - Start development server
-- `yarn build` - Build for production
-- `yarn start` - Start production server
+- `yarn build` - Build for production (static export)
+- `yarn start` - Start production server (development only)
 - `yarn lint` - Run ESLint
 - `yarn postbuild` - Generate sitemap (runs automatically after build)
 
@@ -47,15 +47,16 @@ This is **notion-based-log**, a Next.js static blog that uses Notion as a Conten
 
 ### Environment Management
 - **Development**: Use `.env.local` for local development environment variables
-- **Production**: Deploy to **Vercel** with environment variables configured in Vercel dashboard
+- **Production**: Deploy as static export to **Cloudflare Pages** or any static hosting platform
+- **Static Export**: All pages are pre-built as HTML files in the `out/` directory
 - Never commit sensitive environment variables to repository
 
 ### Data Flow
-1. Notion content is fetched via `src/apis/notion-client/`
+1. Notion content is fetched via `src/apis/notion-client/` during build time
 2. Posts are processed and filtered in `src/libs/utils/notion/`
 3. React Query hooks in `src/hooks/` manage data fetching and caching
 4. Route components in `src/routes/` render the UI
-5. Revalidation occurs every 21600 * 7 seconds (configured in site.config.js)
+5. Static pages are pre-generated with all content at build time
 
 ### Styling System
 - Uses Emotion with a custom theme system
@@ -68,6 +69,7 @@ This is **notion-based-log**, a Next.js static blog that uses Notion as a Conten
 - Custom NotionRenderer component handles specific styling
 - Supports Mermaid diagrams, syntax highlighting, and custom blocks
 - Custom image URL mapping for optimized loading
+- Canonical URLs standardized with trailing slashes to match sitemap format
 
 ## Task Management Workflow
 
@@ -125,6 +127,13 @@ feat: implement Supabase client configuration (task 2)
 - Use descriptive branch names that match the task being implemented
 - Always work on feature branches, never directly on main
 - Merge to main only after task completion and testing
+
+### Deployment Workflow
+- **Static Export**: Build generates static files in `out/` directory
+- **Cloudflare Pages**: Automatic deployment from GitHub repository
+- **Build Command**: `yarn build` (includes sitemap generation)
+- **Output Directory**: `out/`
+- **Environment Variables**: Configure in hosting platform dashboard
 
 ## Supabase MCP Integration
 

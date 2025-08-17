@@ -26,7 +26,7 @@ const TagsPage: NextPageWithLayout = () => {
     title: `Tags - ${CONFIG.blog.title}`,
     description: "Browse posts by tag",
     type: "website",
-    url: `${CONFIG.link}/tags`,
+    url: `${CONFIG.link}/tags/`,
     image: CONFIG.ogImageGenerateURL
       ? `${CONFIG.ogImageGenerateURL}/${encodeURIComponent(`Tags - ${CONFIG.blog.title}`)}.png`
       : undefined,
