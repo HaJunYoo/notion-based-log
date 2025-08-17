@@ -1,4 +1,4 @@
-.PHONY: setup dev run local revalidate-all revalidate-post check-env
+.PHONY: setup dev run local revalidate-all revalidate-post check-env static
 
 # Load environment variables from .env.local if it exists
 ifneq (,$(wildcard .env.local))
@@ -33,6 +33,9 @@ run:
 
 local:
 	yarn dev
+
+static:
+	npx serve out
 
 # Manual revalidation commands
 revalidate-all: check-env

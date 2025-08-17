@@ -17,7 +17,7 @@ export const getStaticProps: GetStaticProps = async () => {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
-    revalidate: CONFIG.revalidateTime,
+    // revalidate: CONFIG.revalidateTime, // Removed for static export
   }
 }
 

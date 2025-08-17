@@ -1,5 +1,5 @@
 import styled from "@emotion/styled"
-import Image from "next/image"
+// import Image from "next/image" // Removed for static export
 import Link from "next/link"
 import { CONFIG } from "site.config"
 import { formatDate } from "src/libs/utils"
@@ -37,14 +37,16 @@ const PostCard: React.FC<Props> = ({ data, index = 0 }) => {
             <h3>{data.title}</h3>
             {data.thumbnail && (
               <div className="thumbnail">
-                <Image
+                <img
                   src={data.thumbnail}
-                  fill
                   alt={`${data.title} - ${data.summary ? data.summary.slice(0, 100) : '블로그 포스트'} 썸네일`}
-                  sizes="(max-width: 768px) 80px, (max-width: 1024px) 100px, 120px"
-                  priority={index < 3}
                   style={{
-                    objectFit: "cover"
+                    objectFit: "cover",
+                    width: "100%",
+                    height: "100%",
+                    position: "absolute",
+                    top: 0,
+                    left: 0
                   }}
                 />
               </div>

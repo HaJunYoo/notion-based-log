@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/revalidate-all",
+      "path": "/api/cron/revalidate-next-js",
       "schedule": "0 2 * * *"
     }
   ]
