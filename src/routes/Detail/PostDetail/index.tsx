@@ -1,6 +1,5 @@
 import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import Category from "src/components/Category"
 import usePostQuery from "src/hooks/usePostQuery"
@@ -18,20 +17,10 @@ const PostDetail: React.FC<Props> = () => {
   const data = usePostQuery()
   const allPosts = usePostsQuery()
 
-  // Fetch recordMap via server-side API
-  const { data: detailData, isLoading: isLoadingDetail, error } = useQuery({
-    queryKey: ['post-detail-api', data?.slug],
-    queryFn: async () => {
-      const response = await fetch(`/api/posts/${data?.slug}`)
-      if (!response.ok) {
-        throw new Error('Failed to fetch post detail')
-      }
-      return response.json()
-    },
-    enabled: !!data?.slug,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    retry: 2
-  })
+  // For static export, recordMap is already included in getStaticProps
+  const detailData = data?.recordMap ? { success: true, data: { recordMap: data.recordMap } } : null
+  const isLoadingDetail = false
+  const error = !data?.recordMap
 
   if (!data) return null
 

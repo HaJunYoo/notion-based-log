@@ -141,7 +141,7 @@ export const getStaticProps: GetStaticProps = async () => {
       props: {
         content,
       },
-      revalidate: CONFIG.revalidateTime,
+      // revalidate: CONFIG.revalidateTime, // Removed for static export
     }
   } catch (error) {
     return {

@@ -61,15 +61,22 @@ export const getStaticProps: GetStaticProps = async (context) => {
     return { notFound: true }
   }
   
-  // Only prefetch post metadata (without recordMap) to avoid ISR size warnings
+  // Get recordMap for complete SEO optimization (static export can handle large sizes)
+  const { getRecordMap } = await import('../apis/notion-client/getRecordMap')
+  const recordMap = await getRecordMap(postDetail.id)
+  
   const postMeta = { ...postDetail, thumbnail: postDetail.thumbnail ?? null }
   await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => postMeta)
+
+  // Add recordMap to the post data in query client
+  const postWithRecordMap = { ...postMeta, recordMap }
+  await queryClient.prefetchQuery(queryKey.post(`${slug}`), () => postWithRecordMap)
 
   return {
     props: {
       dehydratedState: dehydrate(queryClient),
     },
-    revalidate: CONFIG.revalidateTime,
+    // revalidate removed - not needed for static export
   }
 }
 

@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import Image from "next/image"
+// import Image from "next/image" // Removed for static export
 import Link from "next/link"
 import { ExtendedRecordMap } from "notion-types"
 import useScheme from "src/hooks/useScheme"
@@ -74,7 +74,7 @@ const NotionRenderer: FC<Props> = ({ recordMap }) => {
             Equation,
             Modal,
             Pdf,
-            nextImage: Image,
+            // nextImage: Image, // Removed for static export
             nextLink: Link,
           }}
           mapPageUrl={mapPageUrl}
