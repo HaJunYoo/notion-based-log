@@ -12,8 +12,9 @@
     "export": "next export",
     "build:static": "next build && next export",
     "start": "next start",
-    "postbuild": "next-sitemap --config next-sitemap.config.js",
-    "lint": "next lint"
+    "postbuild": "next-sitemap --config next-sitemap.config.js && node scripts/generate-rss.js",
+    "lint": "next lint",
+    "generate-rss": "node scripts/generate-rss.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
@@ -24,8 +25,9 @@
     "@tanstack/react-query": "^4.29.19",
     "axios": ">=0.21.1",
     "cookies-next": "^2.1.2",
+    "feed": "^5.1.0",
     "mermaid": "^10.9.1",
-    "next": "^13.4.9",
+    "next": "^15.4.6",
     "notion-client": "^7.4.2",
     "notion-types": "^7.4.2",
     "notion-utils": "^7.4.2",

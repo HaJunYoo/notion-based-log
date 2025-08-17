@@ -39,8 +39,13 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Generated files (build-time)
 public/robots.txt
 public/sitemap.xml
+public/feed.xml
+public/atom.xml
+public/feed.json
 
 /.firebase
 
