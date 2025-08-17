@@ -132,6 +132,7 @@ async function fetchNotionPosts() {
   }
 }
 
+
 // Generate RSS feed
 async function generateRSS() {
   const siteURL = CONFIG.link
@@ -199,20 +200,26 @@ async function generateRSS() {
       })
   }
 
-  // Ensure public directory exists
-  const publicDir = path.join(process.cwd(), 'public')
-  if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir, { recursive: true })
+  // Ensure out directory exists (for static export)
+  const outDir = path.join(process.cwd(), 'out')
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true })
   }
 
-  // Generate RSS feeds
-  fs.writeFileSync(path.join(publicDir, 'feed.xml'), feed.rss2())
-  fs.writeFileSync(path.join(publicDir, 'atom.xml'), feed.atom1())
-  fs.writeFileSync(path.join(publicDir, 'feed.json'), feed.json1())
+  // Generate RSS feeds content
+  const rssContent = feed.rss2()
+  const atomContent = feed.atom1()
+  const jsonContent = feed.json1()
+
+  // Write to out directory (for static export only)
+  fs.writeFileSync(path.join(outDir, 'feed.xml'), rssContent)
+  fs.writeFileSync(path.join(outDir, 'atom.xml'), atomContent)
+  fs.writeFileSync(path.join(outDir, 'feed.json'), jsonContent)
 
   console.log('✅ RSS feeds generated successfully')
   console.log(`   - ${posts.length} posts processed`)
   console.log(`   - Generated: feed.xml, atom.xml, feed.json`)
+  console.log(`   - Saved to: out/ directory (static export)`)
 
   return true
 }
