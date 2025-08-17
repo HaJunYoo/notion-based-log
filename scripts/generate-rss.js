@@ -2,11 +2,137 @@ const { Feed } = require('feed')
 const fs = require('fs')
 const path = require('path')
 
+// Load environment variables (for local builds and Cloudflare Pages)
+if (fs.existsSync(path.join(process.cwd(), '.env.local'))) {
+  require('dotenv').config({ path: path.join(process.cwd(), '.env.local') })
+}
+
 // Load config
 const siteConfigPath = path.join(process.cwd(), 'site.config.js')
 const { CONFIG } = require(siteConfigPath)
 
-// Simple RSS generation using environment variables
+// Import Notion client for fetching posts
+const { NotionAPI } = require('notion-client')
+const { idToUuid } = require('notion-utils')
+
+// Helper functions from the codebase
+function getAllPageIds(response) {
+  const collectionQuery = response.collection_query
+  const views = Object.values(collectionQuery)[0]
+
+  let pageIds = []
+  if (views) {
+    const pageSet = new Set()
+    Object.values(views).forEach((view) => {
+      view?.collection_group_results?.blockIds?.forEach((id) =>
+        pageSet.add(id)
+      )
+    })
+    pageIds = [...pageSet]
+  }
+  
+  return pageIds || []
+}
+
+// Import getTextContent and getDateValue from notion-utils
+const { getTextContent, getDateValue } = require('notion-utils')
+
+async function getPageProperties(id, block, schema) {
+  const rawProperties = Object.entries(block?.[id]?.value?.properties || [])
+  const excludeProperties = ["date", "select", "multi_select", "person", "file"]
+  const properties = {}
+
+  for (let i = 0; i < rawProperties.length; i++) {
+    const [key, val] = rawProperties[i]
+    properties.id = id
+    
+    if (schema[key]?.type && !excludeProperties.includes(schema[key].type)) {
+      properties[schema[key].name] = getTextContent(val)
+    } else {
+      switch (schema[key]?.type) {
+        case "date": {
+          const dateProperty = getDateValue(val)
+          delete dateProperty?.type
+          properties[schema[key].name] = dateProperty
+          break
+        }
+        case "select": {
+          const selects = getTextContent(val)
+          if (selects[0]?.length) {
+            const categories = selects.split(",")
+            properties[schema[key].name] = categories
+          }
+          break
+        }
+        case "multi_select": {
+          const selects = getTextContent(val)
+          if (selects[0]?.length) {
+            properties[schema[key].name] = selects.split(",")
+          }
+          break
+        }
+        default:
+          break
+      }
+    }
+  }
+  
+  return properties
+}
+
+// Fetch posts directly from Notion
+async function fetchNotionPosts() {
+  try {
+    const api = new NotionAPI()
+    let id = CONFIG.notionConfig.pageId
+    
+    if (!id) {
+      console.warn('NOTION_PAGE_ID not found. RSS will be generated without posts.')
+      return []
+    }
+    
+    console.log(`Fetching from Notion page ID: ${id}`)
+    const response = await api.getPage(id)
+    id = idToUuid(id)
+    
+    const collection = Object.values(response.collection)[0]?.value
+    const block = response.block
+    const schema = collection?.schema
+    
+    const rawMetadata = block[id].value
+    
+    if (rawMetadata?.type !== "collection_view_page" && rawMetadata?.type !== "collection_view") {
+      return []
+    }
+    
+    const pageIds = getAllPageIds(response)
+    const data = []
+    
+    for (let i = 0; i < pageIds.length; i++) {
+      const pageId = pageIds[i]
+      const properties = await getPageProperties(pageId, block, schema)
+      
+      properties.createdTime = new Date(block[pageId].value?.created_time).toString()
+      properties.fullWidth = (block[pageId].value?.format)?.page_full_width ?? false
+      
+      data.push(properties)
+    }
+    
+    // Sort by date
+    data.sort((a, b) => {
+      const dateA = new Date(a?.date?.start_date || a.createdTime)
+      const dateB = new Date(b?.date?.start_date || b.createdTime)
+      return dateB - dateA
+    })
+    
+    return data
+  } catch (error) {
+    console.error('Failed to fetch posts from Notion:', error)
+    return []
+  }
+}
+
+// Generate RSS feed
 async function generateRSS() {
   const siteURL = CONFIG.link
   const date = new Date()
@@ -35,38 +161,31 @@ async function generateRSS() {
     },
   })
 
-  // Read build output for post data
-  const buildDataPath = path.join(process.cwd(), '.next/cache/posts-data.json')
-  let posts = []
+  // Fetch posts from Notion
+  console.log('Fetching posts from Notion...')
+  const posts = await fetchNotionPosts()
 
-  // If build data exists, use it
-  if (fs.existsSync(buildDataPath)) {
-    try {
-      const buildData = JSON.parse(fs.readFileSync(buildDataPath, 'utf8'))
-      posts = buildData.posts || []
-    } catch (e) {
-      console.warn('Could not read build data, creating basic RSS')
-    }
-  }
-
-  // If no posts from build data, create basic RSS structure
+  // Filter and add posts to feed
   if (posts.length === 0) {
-    console.log('Creating basic RSS feed structure')
+    console.log('No posts found, creating basic RSS feed structure')
   } else {
-    // Add posts to feed
-    posts
-      .filter(post => post.status && post.status.includes('Public') && post.type && post.type.includes('Post'))
+    const publishedPosts = posts.filter(post => 
+      post.status && post.status.includes && post.status.includes('Public') && 
+      post.type && post.type.includes && post.type.includes('Post')
+    )
+    
+    publishedPosts
       .slice(0, 20) // Latest 20 posts
       .forEach((post) => {
         const postURL = `${siteURL}/${post.slug}`
         const publishDate = new Date(post.date?.start_date || post.createdTime || date)
 
         feed.addItem({
-          title: post.title,
+          title: post.title || 'Untitled',
           id: postURL,
           link: postURL,
-          description: post.summary || post.title,
-          content: post.summary || post.title,
+          description: post.summary || post.title || 'No description',
+          content: post.summary || post.title || 'No content',
           author: [
             {
               name: CONFIG.profile.name,
@@ -75,7 +194,7 @@ async function generateRSS() {
             },
           ],
           date: publishDate,
-          category: post.category ? [{ name: post.category[0] }] : [],
+          category: post.category ? [{ name: post.category[0] || post.category }] : [],
         })
       })
   }
