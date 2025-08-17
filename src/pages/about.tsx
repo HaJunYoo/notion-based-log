@@ -155,7 +155,7 @@ const AboutPage: NextPageWithLayout<AboutPageProps> = ({ content }) => {
     title: "About",
     description: "About page",
     type: "Page",
-    url: `${CONFIG.link}/about`,
+    url: `${CONFIG.link}/about/`,
   }
 
   return (

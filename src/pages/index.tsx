@@ -26,7 +26,7 @@ const FeedPage: NextPageWithLayout = () => {
     title: CONFIG.blog.title,
     description: CONFIG.blog.description,
     type: "website",
-    url: CONFIG.link,
+    url: `${CONFIG.link}/`,
     image: CONFIG.ogImageGenerateURL
       ? `${CONFIG.ogImageGenerateURL}/${encodeURIComponent(CONFIG.blog.title)}.png`
       : undefined,

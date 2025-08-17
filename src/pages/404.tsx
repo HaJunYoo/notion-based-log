@@ -20,7 +20,7 @@ NotFoundPage.getLayout = (page) => {
           title: CONFIG.blog.title,
           description: CONFIG.blog.description,
           type: "website",
-          url: CONFIG.link,
+          url: `${CONFIG.link}/`,
           image: CONFIG.ogImageGenerateURL
             ? `${CONFIG.ogImageGenerateURL}/${encodeURIComponent("Page Not Found")}.png`
             : undefined,
