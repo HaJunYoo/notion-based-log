@@ -19,8 +19,9 @@ A personal blog project that leverages Notion's powerful editing capabilities to
 - **Comment System**: Utterances or Cusdis integration support
 
 ### 🚀 Performance & SEO
-- **Static Site Generation**: Fast loading speeds with Next.js ISR
+- **Static Site Export**: Ultra-fast loading with static HTML generation
 - **Auto Sitemap**: Automatic sitemap.xml generation for SEO optimization
+- **Canonical URLs**: Standardized URLs matching sitemap format (trailing slashes)
 - **OG Images**: Dynamic OG image generation for social media optimization
 - **Google Analytics**: Visitor statistics and analytics
 
@@ -41,7 +42,7 @@ A personal blog project that leverages Notion's powerful editing capabilities to
 ### Backend & CMS
 - **Notion API** - Content management system
 - **Supabase** - PostgreSQL database (optional)
-- **Vercel** - Deployment and hosting
+- **Static Export** - Pre-built HTML for any hosting platform
 
 ### UI & Styling
 - **react-notion-x** - Notion content rendering
@@ -118,8 +119,8 @@ Open http://localhost:3000 in your browser to view the blog.
 ### Yarn Commands
 ```bash
 yarn dev        # Start development server
-yarn build      # Production build
-yarn start      # Start production server
+yarn build      # Production build (static export)
+yarn start      # Start production server (development only)
 yarn lint       # Run ESLint
 yarn postbuild  # Generate sitemap (runs automatically after build)
 ```
@@ -173,10 +174,25 @@ make revalidate-post SLUG=post-slug    # Invalidate specific post cache
 2. Execute `supabase/schema.sql` to create tables
 3. Set Supabase URL and keys in environment variables
 
-### Deployment (Vercel)
+### Deployment
+
+#### Static Hosting (Recommended)
+The project exports as static files and can be deployed to any hosting platform:
+
+**Cloudflare Pages:**
+1. Connect your GitHub repository to Cloudflare Pages
+2. Set build command: `yarn build`
+3. Set output directory: `out`
+4. Configure environment variables
+
+**Vercel (Legacy):**
 1. Connect your project to Vercel
 2. Configure environment variables in Vercel dashboard
-3. Complete automatic deployment setup
+3. Set output: 'export' in next.config.js for static deployment
+
+**Other Static Hosts:**
+- Netlify, GitHub Pages, AWS S3, etc.
+- Build locally with `yarn build` and upload the `out/` directory
 
 ## 🤝 Contributing
 
