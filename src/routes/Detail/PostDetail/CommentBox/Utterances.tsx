@@ -14,17 +14,23 @@ const Utterances: React.FC<Props> = ({ issueTerm }) => {
   useEffect(() => {
     const theme = `github-${scheme}`
     const anchor = document.getElementById("comments")
-    if (!anchor || anchor.hasChildNodes()) return
+    if (!anchor) return
+    
+    // utterances script가 이미 있는지 확인
+    if (anchor.querySelector('script[src*="utteranc.es"]')) return
 
     const script = document.createElement("script")
     script.setAttribute("src", "https://utteranc.es/client.js")
+    script.setAttribute("repo", CONFIG.utterances.config.repo)
     script.setAttribute("crossorigin", "anonymous")
     script.setAttribute("async", `true`)
     script.setAttribute("issue-term", issueTerm)
     script.setAttribute("theme", theme)
     const config: Record<string, string> = CONFIG.utterances.config
     Object.keys(config).forEach((key) => {
-      script.setAttribute(key, config[key])
+      if (key !== "repo") { // repo는 이미 설정했으므로 중복 방지
+        script.setAttribute(key, config[key])
+      }
     })
     
     anchor.appendChild(script)
@@ -37,9 +43,7 @@ const Utterances: React.FC<Props> = ({ issueTerm }) => {
   }, [scheme, issueTerm])
   return (
     <>
-      <StyledWrapper id="comments">
-        <div className="utterances-frame"></div>
-      </StyledWrapper>
+      <StyledWrapper id="comments" />
     </>
   )
 }
