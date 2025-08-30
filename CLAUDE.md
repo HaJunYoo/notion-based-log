@@ -4,15 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is **notion-based-log**, a Next.js static blog that uses Notion as a Content Management System (CMS). The blog supports both standard blog posts and full pages (like resumes), with automatic content synchronization from Notion.
+This is **notion-based-log**, a fully static Next.js blog that uses Notion as a Content Management System (CMS). The blog supports both standard blog posts and full pages (like resumes), with automatic content synchronization from Notion. All pages are pre-generated at build time for optimal performance and SEO.
 
 ## Development Commands
 
 - `yarn dev` - Start development server
-- `yarn build` - Build for production (static export)
+- `yarn build` - Build for production (static export to `out/` directory)
 - `yarn start` - Start production server (development only)
 - `yarn lint` - Run ESLint
-- `yarn postbuild` - Generate sitemap (runs automatically after build)
+- `yarn postbuild` - Generate sitemap and RSS feed (runs automatically after build)
+- `npx serve out` - Serve static build locally for testing
 
 ## Architecture
 
@@ -37,19 +38,26 @@ This is **notion-based-log**, a Next.js static blog that uses Notion as a Conten
 
 ### Configuration
 - `site.config.js` - Main configuration file for blog settings, profile info, and plugin configuration
-- Environment variables required:
-  - `NOTION_PAGE_ID` (required)
-  - `SUPABASE_URL` (required for database integration)
-  - `SUPABASE_ANON_KEY` (required for database integration)
-  - `NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID` (optional)
-  - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (optional)
-  - `NEXT_PUBLIC_UTTERANCES_REPO` (optional)
+- Environment variables in `.env.local`:
+  - `NOTION_PAGE_ID` (required) - Notion page ID for content source
+  - `SUPABASE_URL` (required) - Supabase project URL for database integration
+  - `SUPABASE_ANON_KEY` (required) - Anonymous key for client-side operations
+  - `SUPABASE_SERVICE_ROLE_KEY` (optional) - Service role key for admin operations
+  - `NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID` (optional) - Google Analytics tracking ID
+  - `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` (optional) - Google Search Console verification
+  - `NEXT_PUBLIC_UTTERANCES_REPO` (required for comments) - GitHub repo for Utterances comments
+  - `SYNC_API_SECRET` (optional) - API secret for sync operations
+  - `REVALIDATION_SECRET` (optional) - Secret for ISR revalidation
+  - `SYNC_WEBHOOK_SECRET` (optional) - Webhook secret for content sync
+  - `TOKEN_FOR_REVALIDATE` (optional) - Token for revalidation endpoints
 
 ### Environment Management
 - **Development**: Use `.env.local` for local development environment variables
-- **Production**: Deploy as static export to **Cloudflare Pages** or any static hosting platform
-- **Static Export**: All pages are pre-built as HTML files in the `out/` directory
+- **Production**: Deploy as static export to **Cloudflare Pages** with environment variables configured in dashboard
+- **Static Export**: All pages are pre-built as HTML files in the `out/` directory during build process
+- **Build-time Variables**: All `NEXT_PUBLIC_*` variables are injected at build time and included in static files
 - Never commit sensitive environment variables to repository
+- Use `npx serve out` to test static build locally with all environment variables properly injected
 
 ### Data Flow
 1. Notion content is fetched via `src/apis/notion-client/` during build time
@@ -70,6 +78,13 @@ This is **notion-based-log**, a Next.js static blog that uses Notion as a Conten
 - Supports Mermaid diagrams, syntax highlighting, and custom blocks
 - Custom image URL mapping for optimized loading
 - Canonical URLs standardized with trailing slashes to match sitemap format
+
+### Comments System
+- **Utterances Integration**: GitHub Issues-based commenting system
+- **Configuration**: Set `NEXT_PUBLIC_UTTERANCES_REPO` in `.env.local`
+- **Implementation**: Located in `src/routes/Detail/PostDetail/CommentBox/Utterances.tsx`
+- **Issue Fixed**: Removed `hasChildNodes()` condition that was blocking script injection
+- **Current Status**: Comments working properly on both development and static builds
 
 ## Task Management Workflow
 
@@ -131,9 +146,22 @@ feat: implement Supabase client configuration (task 2)
 ### Deployment Workflow
 - **Static Export**: Build generates static files in `out/` directory
 - **Cloudflare Pages**: Automatic deployment from GitHub repository
-- **Build Command**: `yarn build` (includes sitemap generation)
+- **Build Command**: `yarn build` (includes sitemap generation and RSS feed)
 - **Output Directory**: `out/`
-- **Environment Variables**: Configure in hosting platform dashboard
+- **Environment Variables**: Configure in hosting platform dashboard (Cloudflare Pages)
+- **SEO Files Generated**: `sitemap.xml`, `robots.txt`, `feed.xml`, `feed.json`
+- **Testing**: Use `npx serve out` to test static build locally before deployment
+
+### SEO Configuration
+- **Meta Tags**: Complete HTML meta tags with Korean language support (`lang="ko-KR"`)
+- **Open Graph**: Full OG meta tags for social media sharing
+- **Twitter Cards**: `summary_large_image` card type with proper image URLs
+- **Google Search Console**: Verification tag configured via `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`
+- **Google Analytics**: Tracking configured via `NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID`
+- **Sitemap**: Auto-generated XML sitemap with all pages and posts
+- **RSS Feed**: Auto-generated RSS/Atom feed in both XML and JSON formats
+- **Robots.txt**: Configured with AI bot restrictions and sitemap location
+- **Canonical URLs**: Proper canonical URLs with trailing slashes matching sitemap format
 
 ## Supabase MCP Integration
 
@@ -312,6 +340,40 @@ mcp__supabase__get_project({ project_id: "your-id" })
 # View logs
 mcp__supabase__get_logs({ project_id: "your-id", service: "postgres" })
 ```
+
+## Current Development Status
+
+### Recently Completed
+- ✅ **Utterances Comments System**: Fixed script injection issue in `Utterances.tsx`
+  - Removed blocking `hasChildNodes()` condition
+  - Added explicit repo attribute setting
+  - Comments now work properly on both development and static builds
+- ✅ **Static Export Configuration**: Complete static build setup
+  - All pages pre-generated at build time in `out/` directory
+  - Environment variables properly injected during build process
+  - Local testing available via `npx serve out`
+- ✅ **SEO Optimization**: Comprehensive SEO implementation
+  - Complete meta tags, Open Graph, Twitter Cards
+  - Google Search Console and Analytics integration
+  - Auto-generated sitemap, robots.txt, RSS feeds
+  - Korean language support (`lang="ko-KR"`)
+
+### Active Branch
+- **Current**: `migration/cloudflare-pages-static-export`
+- **Status**: Clean working directory, ready for deployment
+
+### Environment Variables Status
+All environment variables in `.env.local` are properly configured:
+- ✅ Notion integration (`NOTION_PAGE_ID`)
+- ✅ Supabase database connection (`SUPABASE_URL`, `SUPABASE_ANON_KEY`)
+- ✅ Google services (`NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`)
+- ✅ Utterances comments (`NEXT_PUBLIC_UTTERANCES_REPO`)
+- ✅ API secrets and revalidation tokens
+
+### Next Steps
+- Deploy to Cloudflare Pages with environment variables configured in dashboard
+- Test comments system on production deployment
+- Monitor SEO performance and search engine indexing
 
 ## Task Master AI Instructions
 **Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
