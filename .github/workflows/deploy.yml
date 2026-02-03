@@ -1,0 +1,24 @@
+# Deploy to Cloudflare Pages via Deploy Hook
+# This workflow triggers Cloudflare Pages deployment on push to main
+# Workaround for automatic Git integration issues
+
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages Deploy
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}")
+          if [ "$response" -eq 200 ]; then
+            echo "Successfully triggered Cloudflare Pages deployment"
+          else
+            echo "Failed to trigger deployment. HTTP status: $response"
+            exit 1
+          fi
