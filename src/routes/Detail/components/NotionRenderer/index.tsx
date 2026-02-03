@@ -3,11 +3,13 @@ import dynamic from "next/dynamic"
 import Link from "next/link"
 import { ExtendedRecordMap } from "notion-types"
 import useScheme from "src/hooks/useScheme"
-import { FC, useEffect } from "react"
+import { FC, useEffect, useState } from "react"
 import { Global } from "@emotion/react"
 import { notionCustomStyles } from "src/styles/notion-custom"
 import styled from "@emotion/styled"
 
+// Core NotionRenderer - SSR enabled for SEO (content rendered at build time)
+import { NotionRenderer as _NotionRenderer } from "react-notion-x"
 
 // core styles shared by all of react-notion-x (required)
 import "react-notion-x/src/styles.css"
@@ -19,11 +21,6 @@ import "prism-themes/themes/prism-vsc-dark-plus.css";
 
 // used for rendering equations (optional)
 import "katex/dist/katex.min.css"
-
-const _NotionRenderer = dynamic(
-  () => import("react-notion-x").then((m) => m.NotionRenderer),
-  { ssr: false }
-)
 
 const Code = dynamic(() =>
   import("react-notion-x/build/third-party/code").then(async (m) => m.Code)
@@ -60,13 +57,22 @@ type Props = {
 
 const NotionRenderer: FC<Props> = ({ recordMap }) => {
   const [scheme] = useScheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // SSR 시 light mode 기본값, hydration 후 실제 테마 적용
+  // 이렇게 하면 hydration mismatch 방지
+  const darkMode = mounted ? scheme === "dark" : false
 
   return (
     <>
       <Global styles={notionCustomStyles} />
       <div>
         <_NotionRenderer
-          darkMode={scheme === "dark"}
+          darkMode={darkMode}
           recordMap={recordMap}
           components={{
             Code,
