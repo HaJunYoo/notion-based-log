@@ -37,7 +37,7 @@ export const getStaticPaths = async () => {
     paths: filteredPost
       .filter((row) => row.slug !== "about")
       .map((row) => `/${row.slug}`),
-    fallback: 'blocking',
+    fallback: false,  // static export에서는 모든 경로가 빌드 타임에 생성되어야 함
   }
 }
 
