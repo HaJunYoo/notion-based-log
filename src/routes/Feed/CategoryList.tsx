@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import React, { useState } from "react"
 import { Emoji } from "src/components/Emoji"
@@ -59,13 +60,17 @@ const CategoryList: React.FC<Props> = () => {
       </div>
       <div className="list">
         {/* All 카테고리 먼저 표시 */}
-        <a
+        <Link
+          href="/"
           data-active={currentCategory === DEFAULT_CATEGORY || !currentCategory}
-          onClick={() => handleClickCategory(DEFAULT_CATEGORY)}
+          onClick={(e) => {
+            e.preventDefault()
+            handleClickCategory(DEFAULT_CATEGORY)
+          }}
           className="all-category"
         >
           All <CategoryCount>({posts?.length || 0})</CategoryCount>
-        </a>
+        </Link>
 
         {/* 계층 구조로 카테고리 표시 */}
         {Object.entries(majorCategories).map(([major, data]) => {
@@ -75,9 +80,13 @@ const CategoryList: React.FC<Props> = () => {
           return (
             <div key={major} className="category-group">
               {/* 대분류 */}
-              <a
+              <Link
+                href={`/?category=${encodeURIComponent(major)}`}
                 data-active={currentCategory === major}
-                onClick={() => handleClickCategory(major)}
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleClickCategory(major)
+                }}
                 className="major-category"
               >
                 <span className="category-content">
@@ -92,18 +101,22 @@ const CategoryList: React.FC<Props> = () => {
                     {isExpanded ? '−' : '+'}
                   </span>
                 )}
-              </a>
+              </Link>
 
               {/* 소분류들 - 토글 상태에 따라 표시 */}
               {isExpanded && Object.entries(data.minorCategories).map(([minor, count]) => (
-                <a
+                <Link
                   key={`${major}/${minor}`}
+                  href={`/?category=${encodeURIComponent(`${major}/${minor}`)}`}
                   data-active={currentCategory === `${major}/${minor}`}
-                  onClick={() => handleClickCategory(`${major}/${minor}`)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleClickCategory(`${major}/${minor}`)
+                  }}
                   className="minor-category"
                 >
                   {minor} <MinorCategoryCount>({count})</MinorCategoryCount>
-                </a>
+                </Link>
               ))}
             </div>
           )
