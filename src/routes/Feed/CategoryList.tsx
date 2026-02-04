@@ -1,7 +1,7 @@
 import styled from "@emotion/styled"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import React, { useState } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { Emoji } from "src/components/Emoji"
 import { DEFAULT_CATEGORY } from "src/constants"
 import usePostsQuery from "src/hooks/usePostsQuery"
@@ -14,10 +14,18 @@ const CategoryList: React.FC<Props> = () => {
   const currentCategory = router.query.category || undefined
   const posts = usePostsQuery()
   const majorCategories = posts && posts.length > 0 ? getMajorCategoriesFromPosts(posts) : {}
-  // 기본적으로 모든 카테고리는 펼쳐진 상태로 시작
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(posts && posts.length > 0 ? Object.keys(getMajorCategoriesFromPosts(posts)) : [])
-  )
+
+  // 빈 Set으로 시작 (hydration 안전)
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
+  const userInteractedRef = useRef(false)
+
+  // 마운트 후 모든 카테고리 펼침 (사용자가 아직 상호작용하지 않은 경우에만)
+  useEffect(() => {
+    if (!userInteractedRef.current && posts && posts.length > 0) {
+      const allMajorCategories = Object.keys(getMajorCategoriesFromPosts(posts))
+      setExpandedCategories(new Set(allMajorCategories))
+    }
+  }, [])
 
   const handleClickCategory = (value: any) => {
     // delete
@@ -43,14 +51,18 @@ const CategoryList: React.FC<Props> = () => {
   }
 
   const toggleCategory = (majorCategory: string, e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
-    const newExpanded = new Set(expandedCategories)
-    if (newExpanded.has(majorCategory)) {
-      newExpanded.delete(majorCategory)
-    } else {
-      newExpanded.add(majorCategory)
-    }
-    setExpandedCategories(newExpanded)
+    userInteractedRef.current = true // 사용자 상호작용 표시
+    setExpandedCategories(prev => {
+      const newExpanded = new Set(prev)
+      if (newExpanded.has(majorCategory)) {
+        newExpanded.delete(majorCategory)
+      } else {
+        newExpanded.add(majorCategory)
+      }
+      return newExpanded
+    })
   }
 
   return (
