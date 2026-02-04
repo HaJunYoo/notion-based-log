@@ -138,10 +138,34 @@ feat: implement Supabase client configuration (task 2)
 5. Updating task status to 'done'
 
 ### Branch Management
-- Create feature branches for new tasks: `git checkout -b feature/task-description`
-- Use descriptive branch names that match the task being implemented
-- Always work on feature branches, never directly on main
-- Merge to main only after task completion and testing
+
+**IMPORTANT: 모든 신규 작업은 반드시 새로운 브랜치에서 진행해야 합니다.**
+
+#### Branch Creation Rules
+1. **신규 작업 시작 전**: 반드시 새로운 브랜치를 생성
+2. **브랜치 생성 명령**: `git checkout -b <type>/<description>`
+3. **현재 브랜치에서 직접 작업 금지**: main 또는 다른 기존 브랜치에서 직접 코드 수정하지 않기
+
+#### Branch Naming Convention
+- `feature/` - 새로운 기능 추가
+- `fix/` - 버그 수정
+- `refactor/` - 코드 리팩토링
+- `docs/` - 문서 수정
+- `chore/` - 설정, 빌드 관련 작업
+
+예시:
+```bash
+git checkout -b feature/add-dark-mode
+git checkout -b fix/seo-category-links
+git checkout -b refactor/optimize-image-loading
+```
+
+#### Workflow
+1. 새 브랜치 생성: `git checkout -b <type>/<description>`
+2. 작업 완료 후 커밋
+3. 원격 저장소에 푸시: `git push -u origin <branch-name>`
+4. PR 생성: `gh pr create --base main`
+5. 리뷰 및 머지 후 로컬 브랜치 정리
 
 ### Deployment Workflow
 - **Static Export**: Build generates static files in `out/` directory
