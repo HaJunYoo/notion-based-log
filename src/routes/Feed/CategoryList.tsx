@@ -94,30 +94,34 @@ const CategoryList: React.FC<Props> = () => {
                 </span>
                 {hasMinorCategories && (
                   <span
-                    className={`toggle-icon ${!isExpanded ? 'collapsed' : ''}`}
+                    className={`toggle-icon ${isExpanded ? 'expanded' : ''}`}
                     onClick={(e) => toggleCategory(major, e)}
                     title={isExpanded ? '접기' : '펼쳐서 하위 카테고리 보기'}
                   >
-                    {isExpanded ? '−' : '+'}
+                    ›
                   </span>
                 )}
               </Link>
 
-              {/* 소분류들 - 토글 상태에 따라 표시 */}
-              {isExpanded && Object.entries(data.minorCategories).map(([minor, count]) => (
-                <Link
-                  key={`${major}/${minor}`}
-                  href={`/?category=${encodeURIComponent(`${major}/${minor}`)}`}
-                  data-active={currentCategory === `${major}/${minor}`}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handleClickCategory(`${major}/${minor}`)
-                  }}
-                  className="minor-category"
-                >
-                  {minor} <MinorCategoryCount>({count})</MinorCategoryCount>
-                </Link>
-              ))}
+              {/* 소분류들 - 애니메이션과 함께 표시 */}
+              {hasMinorCategories && (
+                <div className={`minor-categories ${isExpanded ? 'expanded' : ''}`}>
+                  {Object.entries(data.minorCategories).map(([minor, count]) => (
+                    <Link
+                      key={`${major}/${minor}`}
+                      href={`/?category=${encodeURIComponent(`${major}/${minor}`)}`}
+                      data-active={currentCategory === `${major}/${minor}`}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        handleClickCategory(`${major}/${minor}`)
+                      }}
+                      className="minor-category"
+                    >
+                      {minor} <MinorCategoryCount>({count})</MinorCategoryCount>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
           )
         })}
@@ -185,6 +189,19 @@ const StyledWrapper = styled.div`
       }
     }
 
+    .minor-categories {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.25s ease-out, opacity 0.2s ease;
+      opacity: 0;
+
+      &.expanded {
+        max-height: 500px;
+        opacity: 1;
+        transition: max-height 0.3s ease-in, opacity 0.2s ease;
+      }
+    }
+
     a {
       display: flex;
       align-items: center;
@@ -210,6 +227,19 @@ const StyledWrapper = styled.div`
         background-color: ${({ theme }) => theme.colors.gray3};
         border-color: ${({ theme }) => theme.colors.gray6};
         font-weight: 400;
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 3px;
+          height: 60%;
+          background: ${({ theme }) => theme.colors.blue9};
+          border-radius: 0 2px 2px 0;
+        }
       }
 
       &.all-category {
@@ -246,16 +276,21 @@ const StyledWrapper = styled.div`
           position: absolute;
           right: 0.625rem;
           top: 50%;
-          transform: translateY(-50%);
+          transform: translateY(-50%) rotate(0deg);
           cursor: pointer;
-          font-size: 0.75rem;
-          font-weight: 600;
+          font-size: 0.875rem;
+          font-weight: 500;
           color: ${({ theme }) => theme.colors.gray10};
-          transition: all 0.15s ease;
-          width: 12px;
+          transition: transform 0.2s ease, color 0.15s ease;
+          width: 16px;
+          height: 16px;
           display: inline-flex;
           justify-content: center;
           align-items: center;
+
+          &.expanded {
+            transform: translateY(-50%) rotate(90deg);
+          }
 
           :hover {
             color: ${({ theme }) => theme.colors.gray12};
@@ -300,6 +335,18 @@ const StyledWrapper = styled.div`
 
           &::before {
             color: ${({ theme }) => theme.colors.gray11};
+          }
+
+          &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: ${({ theme }) => theme.colors.blue9};
+            border-radius: 0 2px 2px 0;
           }
         }
       }
