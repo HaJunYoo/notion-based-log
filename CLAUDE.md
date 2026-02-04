@@ -168,13 +168,31 @@ git checkout -b refactor/optimize-image-loading
 5. 리뷰 및 머지 후 로컬 브랜치 정리
 
 ### Deployment Workflow
-- **Static Export**: Build generates static files in `out/` directory
-- **Cloudflare Pages**: Automatic deployment from GitHub repository
-- **Build Command**: `yarn build` (includes sitemap generation and RSS feed)
-- **Output Directory**: `out/`
-- **Environment Variables**: Configure in hosting platform dashboard (Cloudflare Pages)
-- **SEO Files Generated**: `sitemap.xml`, `robots.txt`, `feed.xml`, `feed.json`
-- **Testing**: Use `npx serve out` to test static build locally before deployment
+
+**IMPORTANT: 이 프로젝트는 완전한 정적 빌드(Static Export)로 배포됩니다.**
+
+#### 빌드 프로세스
+```bash
+yarn build          # 정적 파일 생성 (out/ 디렉토리)
+npx serve out       # 로컬에서 정적 빌드 테스트 (필수!)
+```
+
+#### 배포 전 필수 테스트
+1. `yarn build` 실행하여 정적 파일 생성
+2. `npx serve out` 실행하여 로컬에서 테스트
+3. 모든 페이지 동작 확인 (테마 전환, 카테고리 토글 등)
+4. 문제 없으면 GitHub에 푸시 → Cloudflare Pages 자동 배포
+
+#### Cloudflare Pages 설정
+- **Build Command**: `yarn build`
+- **Output Directory**: `out`
+- **Environment Variables**: Cloudflare Pages 대시보드에서 설정
+  - 모든 `NEXT_PUBLIC_*` 변수는 빌드 시점에 주입됨
+
+#### 생성되는 SEO 파일
+- `sitemap.xml` - 사이트맵
+- `robots.txt` - 크롤러 설정
+- `feed.xml`, `atom.xml`, `feed.json` - RSS 피드
 
 ### SEO Configuration
 - **Meta Tags**: Complete HTML meta tags with Korean language support (`lang="ko-KR"`)
@@ -368,9 +386,12 @@ mcp__supabase__get_logs({ project_id: "your-id", service: "postgres" })
 ## Current Development Status
 
 ### Recently Completed
+- ✅ **Theme System Bug Fix**: Fixed category toggle triggering dark mode transition
+  - `src/hooks/useScheme.ts`: Changed SSR fallback from `"dark"` to `"light"` for system mode
+  - Explicit `"light"` or `"dark"` config settings are still respected
+  - Prevents theme flicker on light-mode systems
 - ✅ **Utterances Comments System**: Fixed script injection issue in `Utterances.tsx`
   - Removed blocking `hasChildNodes()` condition
-  - Added explicit repo attribute setting
   - Comments now work properly on both development and static builds
 - ✅ **Static Export Configuration**: Complete static build setup
   - All pages pre-generated at build time in `out/` directory
@@ -378,13 +399,7 @@ mcp__supabase__get_logs({ project_id: "your-id", service: "postgres" })
   - Local testing available via `npx serve out`
 - ✅ **SEO Optimization**: Comprehensive SEO implementation
   - Complete meta tags, Open Graph, Twitter Cards
-  - Google Search Console and Analytics integration
   - Auto-generated sitemap, robots.txt, RSS feeds
-  - Korean language support (`lang="ko-KR"`)
-
-### Active Branch
-- **Current**: `migration/cloudflare-pages-static-export`
-- **Status**: Clean working directory, ready for deployment
 
 ### Environment Variables Status
 All environment variables in `.env.local` are properly configured:
@@ -392,12 +407,6 @@ All environment variables in `.env.local` are properly configured:
 - ✅ Supabase database connection (`SUPABASE_URL`, `SUPABASE_ANON_KEY`)
 - ✅ Google services (`NEXT_PUBLIC_GOOGLE_MEASUREMENT_ID`, `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`)
 - ✅ Utterances comments (`NEXT_PUBLIC_UTTERANCES_REPO`)
-- ✅ API secrets and revalidation tokens
-
-### Next Steps
-- Deploy to Cloudflare Pages with environment variables configured in dashboard
-- Test comments system on production deployment
-- Monitor SEO performance and search engine indexing
 
 ## Task Master AI Instructions
 **Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**

@@ -15,8 +15,8 @@ const useScheme = (): [SchemeType, SetScheme] => {
     queryKey: queryKey.scheme(),
     enabled: false,
     initialData: followsSystemTheme
-      ? "dark"
-      : (CONFIG.blog.scheme as SchemeType),
+      ? "light" // system 모드: SSR 안전한 fallback
+      : (CONFIG.blog.scheme as SchemeType), // 명시적 light/dark: 설정값 존중
   })
 
   const setScheme = (scheme: SchemeType) => {
