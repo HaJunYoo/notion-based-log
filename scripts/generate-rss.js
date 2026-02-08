@@ -1,4 +1,3 @@
-const { Feed } = require('feed')
 const fs = require('fs')
 const path = require('path')
 
@@ -149,6 +148,9 @@ async function fetchNotionPosts() {
 
 // Generate RSS feed
 async function generateRSS() {
+  // Dynamic import for ESM compatibility with Node 24
+  const { Feed } = await import('feed')
+
   const siteURL = CONFIG.link
   const date = new Date()
 
