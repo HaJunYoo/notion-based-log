@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Language Preference
+
+**IMPORTANT**: Always respond to the user in Korean (한국어). All explanations, questions, and summaries should be written in Korean. Code comments and commit messages should remain in English.
+
 ## Project Overview
 
 This is **notion-based-log**, a fully static Next.js blog that uses Notion as a Content Management System (CMS). The blog supports both standard blog posts and full pages (like resumes), with automatic content synchronization from Notion. All pages are pre-generated at build time for optimal performance and SEO.
