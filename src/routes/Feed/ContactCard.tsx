@@ -5,6 +5,7 @@ import {
   AiOutlineGithub,
   AiOutlineInstagram,
   AiOutlineMail,
+  AiOutlineMedium,
 } from "react-icons/ai"
 import { MdRssFeed } from "react-icons/md"
 import { CONFIG } from "site.config"
@@ -56,6 +57,16 @@ const ContactCard: React.FC = () => {
           >
             <AiFillLinkedin className="icon" />
             <div className="name">linkedin</div>
+          </a>
+        )}
+        {CONFIG.profile.medium && (
+          <a
+            href={`https://medium.com/@${CONFIG.profile.medium}`}
+            rel="noreferrer"
+            target="_blank"
+          >
+            <AiOutlineMedium className="icon" />
+            <div className="name">medium</div>
           </a>
         )}
         <a
