@@ -28,6 +28,7 @@ export type TConfig = {
     linkedin: string
     github: string
     instagram: string
+    medium: string
   }
   projects: TProject[]
   blog: {

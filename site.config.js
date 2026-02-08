@@ -9,6 +9,7 @@ const CONFIG = {
     linkedin: "yuki-hajun",
     github: "HaJunYoo",
     instagram: "",
+    medium: "hajuny129",
   },
   projects: [],
   // blog setting (required)
