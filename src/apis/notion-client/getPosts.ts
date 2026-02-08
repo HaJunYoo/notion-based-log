@@ -45,8 +45,25 @@ export const getPosts = async (retries = 5) => {
   }
 
   id = idToUuid(id)
-  const collection = Object.values(response.collection)[0]?.value
-  const block = response.block
+
+  // Normalize block and collection data to handle nested value structure
+  // Notion API sometimes returns { value: { value: {...} } } instead of { value: {...} }
+  const normalizeValue = (obj: any) => {
+    if (obj?.value?.value && typeof obj.value.value === 'object' && 'id' in obj.value.value) {
+      return obj.value.value
+    }
+    return obj?.value
+  }
+
+  const rawCollection = Object.values(response.collection)[0]
+  const collection = normalizeValue(rawCollection)
+
+  // Normalize all blocks
+  const block: any = {}
+  for (const [blockId, blockData] of Object.entries(response.block)) {
+    block[blockId] = { value: normalizeValue(blockData) }
+  }
+
   const schema = collection?.schema
 
   const rawMetadata = block[id].value
