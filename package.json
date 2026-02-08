@@ -12,9 +12,10 @@
     "export": "next export",
     "build:static": "next build && next export",
     "start": "next start",
-    "postbuild": "next-sitemap --config next-sitemap.config.js && node scripts/generate-rss.js",
+    "postbuild": "next-sitemap --config next-sitemap.config.js && node scripts/generate-rss.js && node scripts/generate-llms-txt.js",
     "lint": "next lint",
-    "generate-rss": "node scripts/generate-rss.js"
+    "generate-rss": "node scripts/generate-rss.js",
+    "generate-llms": "node scripts/generate-llms-txt.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.1",
