@@ -302,18 +302,7 @@ Since programmatic schema application requires additional authentication, use th
 
 ### Testing and Verification
 
-#### Connection Testing
-Use the built-in test script:
-```bash
-node scripts/test-supabase.js
-```
-
-This script verifies:
-- Database connection with configured credentials
-- Client configuration and performance
-- Health check and latency measurement
-
-#### Manual Table Verification
+#### Table Verification
 ```javascript
 // Check if tables exist (temporary script)
 const { createClient } = require('@supabase/supabase-js')
@@ -349,10 +338,9 @@ mcp__supabase__execute_sql({
 ```
 
 #### Deployment Workflow
-1. Test locally with `node scripts/test-supabase.js`
-2. Apply migrations via Dashboard or MCP
-3. Verify with connection tests
-4. Update production environment variables
+1. Apply migrations via Dashboard or MCP
+2. Verify with MCP tools (e.g., `mcp__supabase__execute_sql`)
+3. Update production environment variables
 
 ### Security Considerations
 
@@ -377,14 +365,14 @@ mcp__supabase__execute_sql({
 
 #### Debug Commands
 ```bash
-# Test connection
-node scripts/test-supabase.js
-
 # Check project status
 mcp__supabase__get_project({ project_id: "your-id" })
 
 # View logs
 mcp__supabase__get_logs({ project_id: "your-id", service: "postgres" })
+
+# Execute test query
+mcp__supabase__execute_sql({ project_id: "your-id", query: "SELECT 1" })
 ```
 
 ## Current Development Status
