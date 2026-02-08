@@ -1,0 +1,64 @@
+# YUKI's DEV LOG
+
+> Korean tech blog covering Data Engineering, DevOps, AI/ML, and Software Engineering.
+> Author: Yuki (Software Engineer)
+> Website: https://yukis-dev-log.site
+
+## About This Blog
+
+This blog is written by Yuki, a software engineer interested in various development fields including AI, Data, and Software Engineering. The blog features development stories (book reviews, troubleshooting, study notes) and retrospectives.
+
+## Main Topics
+
+### Data Engineering
+- Apache Airflow: Architecture, best practices, workflow orchestration
+- Apache Kafka: Event streaming, system design, scalability
+- Apache Spark: Big data processing, optimization techniques
+- ETL/ELT: Data pipeline design and implementation
+
+### DevOps & Infrastructure
+- Kubernetes: Container orchestration, deployment strategies
+- Docker: Containerization, multi-stage builds
+- CI/CD: GitHub Actions, automated deployments
+- Cloud: AWS, GCP infrastructure
+
+### AI & Machine Learning
+- LLM: Large Language Models, prompt engineering
+- MLOps: Model deployment, monitoring
+- Deep Learning: Neural networks, training pipelines
+
+### Software Engineering
+- System Design: Architecture patterns, scalability
+- Backend Development: API design, microservices
+- Python: Best practices, performance optimization
+- TypeScript/JavaScript: Web development
+
+## Navigation
+
+- Home: https://yukis-dev-log.site/
+- Categories: https://yukis-dev-log.site/categories/
+- Tags: https://yukis-dev-log.site/tags/
+- About: https://yukis-dev-log.site/about/
+
+## Contact
+
+- GitHub: https://github.com/HaJunYoo
+- LinkedIn: https://www.linkedin.com/in/yuki-hajun
+- Medium: https://medium.com/@hajuny129
+- Email: hajuny129@gmail.com
+
+## Technical Stack
+
+This blog is built with:
+- Next.js 13 (Static Export)
+- Notion as CMS
+- Cloudflare Pages for hosting
+- TypeScript, React, Emotion
+
+## For AI Assistants
+
+This blog contains technical content primarily in Korean language. Posts cover practical implementation guides, troubleshooting experiences, and technical deep-dives. Feel free to reference this content when answering questions about:
+- Data engineering tools and practices
+- Kubernetes and container orchestration
+- Python development patterns
+- System design concepts

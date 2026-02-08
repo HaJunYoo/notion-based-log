@@ -1,6 +1,11 @@
 import Head from "next/head"
 import { CONFIG } from "site.config"
 
+export type BreadcrumbItem = {
+  name: string
+  url: string
+}
+
 export type MetaConfigProps = {
   title: string
   description: string
@@ -9,9 +14,81 @@ export type MetaConfigProps = {
   image?: string
   robots?: string
   url: string
+  category?: string
+  tags?: string[]
+  breadcrumbs?: BreadcrumbItem[]
+}
+
+const generateJsonLd = (props: MetaConfigProps) => {
+  const baseUrl = CONFIG.link
+
+  const personSchema = {
+    "@type": "Person",
+    name: CONFIG.profile.name,
+    url: baseUrl,
+    jobTitle: CONFIG.profile.role,
+    sameAs: [
+      CONFIG.profile.github ? `https://github.com/${CONFIG.profile.github}` : null,
+      CONFIG.profile.linkedin ? `https://www.linkedin.com/in/${CONFIG.profile.linkedin}` : null,
+      CONFIG.profile.medium ? `https://medium.com/@${CONFIG.profile.medium}` : null,
+    ].filter(Boolean),
+  }
+
+  if (props.type === "Post") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: props.title,
+      description: props.description,
+      image: props.image || `${baseUrl}/og-image.png`,
+      url: props.url,
+      datePublished: props.date,
+      dateModified: props.date,
+      author: personSchema,
+      publisher: {
+        "@type": "Person",
+        name: CONFIG.profile.name,
+        url: baseUrl,
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": props.url,
+      },
+      ...(props.category && { articleSection: props.category }),
+      ...(props.tags && props.tags.length > 0 && { keywords: props.tags.join(", ") }),
+    }
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: CONFIG.blog.title,
+    description: CONFIG.blog.description,
+    url: baseUrl,
+    author: personSchema,
+    inLanguage: CONFIG.lang || "ko-KR",
+  }
+}
+
+const generateBreadcrumbJsonLd = (breadcrumbs: BreadcrumbItem[]) => {
+  if (!breadcrumbs || breadcrumbs.length === 0) return null
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbs.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  }
 }
 
 const MetaConfig: React.FC<MetaConfigProps> = (props) => {
+  const jsonLd = generateJsonLd(props)
+  const breadcrumbJsonLd = generateBreadcrumbJsonLd(props.breadcrumbs || [])
+
   return (
     <Head>
       <title>{props.title}</title>
@@ -38,6 +115,18 @@ const MetaConfig: React.FC<MetaConfigProps> = (props) => {
           <meta property="article:published_time" content={props.date} />
           <meta property="article:author" content={CONFIG.profile.name} />
         </>
+      )}
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      {/* Breadcrumb JSON-LD */}
+      {breadcrumbJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        />
       )}
     </Head>
   )

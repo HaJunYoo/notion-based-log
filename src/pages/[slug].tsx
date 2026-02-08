@@ -92,6 +92,17 @@ const DetailPage: NextPageWithLayout = () => {
 
   const date = post.date?.start_date || post.createdTime || ""
 
+  const categoryValue = Array.isArray(post.category)
+    ? post.category[0]
+    : post.category
+  const category: string | undefined = typeof categoryValue === 'string' ? categoryValue : undefined
+
+  const breadcrumbs = [
+    { name: "Home", url: `${CONFIG.link}/` },
+    ...(category ? [{ name: category, url: `${CONFIG.link}/categories/` }] : []),
+    { name: post.title, url: `${CONFIG.link}/${post.slug}/` },
+  ]
+
   const meta = {
     title: post.title,
     date: new Date(date).toISOString(),
@@ -103,6 +114,9 @@ const DetailPage: NextPageWithLayout = () => {
       post.type?.[0] === "Paper" || post.status?.[0] === "PublicOnDetail"
         ? "noindex, follow"
         : "index, follow",
+    category,
+    tags: post.tags || undefined,
+    breadcrumbs,
   }
 
   return (
