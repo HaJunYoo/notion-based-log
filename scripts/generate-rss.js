@@ -80,41 +80,55 @@ async function getPageProperties(id, block, schema) {
   return properties
 }
 
+// Normalize value to handle nested value structure from Notion API
+function normalizeValue(obj) {
+  if (obj?.value?.value && typeof obj.value.value === 'object' && 'id' in obj.value.value) {
+    return obj.value.value
+  }
+  return obj?.value
+}
+
 // Fetch posts directly from Notion
 async function fetchNotionPosts() {
   try {
     const api = new NotionAPI()
     let id = CONFIG.notionConfig.pageId
-    
+
     if (!id) {
       console.warn('NOTION_PAGE_ID not found. RSS will be generated without posts.')
       return []
     }
-    
+
     console.log(`Fetching from Notion page ID: ${id}`)
     const response = await api.getPage(id)
     id = idToUuid(id)
-    
-    const collection = Object.values(response.collection)[0]?.value
-    const block = response.block
+
+    // Normalize collection and block data
+    const rawCollection = Object.values(response.collection)[0]
+    const collection = normalizeValue(rawCollection)
+
+    const block = {}
+    for (const [blockId, blockData] of Object.entries(response.block)) {
+      block[blockId] = { value: normalizeValue(blockData) }
+    }
+
     const schema = collection?.schema
-    
-    const rawMetadata = block[id].value
-    
+    const rawMetadata = block[id]?.value
+
     if (rawMetadata?.type !== "collection_view_page" && rawMetadata?.type !== "collection_view") {
       return []
     }
-    
+
     const pageIds = getAllPageIds(response)
     const data = []
-    
+
     for (let i = 0; i < pageIds.length; i++) {
       const pageId = pageIds[i]
       const properties = await getPageProperties(pageId, block, schema)
-      
-      properties.createdTime = new Date(block[pageId].value?.created_time).toString()
-      properties.fullWidth = (block[pageId].value?.format)?.page_full_width ?? false
-      
+
+      properties.createdTime = new Date(block[pageId]?.value?.created_time).toString()
+      properties.fullWidth = (block[pageId]?.value?.format)?.page_full_width ?? false
+
       data.push(properties)
     }
     
