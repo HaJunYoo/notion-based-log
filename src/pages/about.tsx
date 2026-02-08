@@ -115,6 +115,33 @@ const AboutContainer = styled.div`
       }
     }
   }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+  }
+
+  th, td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--colors-gray-4);
+  }
+
+  th {
+    font-weight: 600;
+    color: var(--colors-gray-12);
+    background: var(--colors-gray-2);
+  }
+
+  td {
+    color: var(--colors-gray-10);
+  }
+
+  tr:hover td {
+    background: var(--colors-gray-2);
+  }
   ${respondMobile} {
     padding: 1.5rem 1rem;
     max-width: 100%;
@@ -130,6 +157,8 @@ const AboutContainer = styled.div`
       padding: 0.75rem 1rem;
       margin: 1rem 0;
     }
+    table { font-size: 0.8rem; }
+    th, td { padding: 0.5rem 0.75rem; }
   }
 `
 
